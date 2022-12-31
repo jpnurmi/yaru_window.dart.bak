@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'yaru_window_platform_interface.dart';
+import 'platform_interface.dart';
 
 /// An implementation of [YaruWindowPlatform] that uses method channels.
 class MethodChannelYaruWindow extends YaruWindowPlatform {
@@ -11,7 +11,8 @@ class MethodChannelYaruWindow extends YaruWindowPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 }

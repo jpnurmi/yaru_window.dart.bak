@@ -1,13 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaru_window/yaru_window.dart';
-import 'package:yaru_window/yaru_window_platform_interface.dart';
-import 'package:yaru_window/yaru_window_method_channel.dart';
+import 'package:yaru_window/src/platform_interface.dart';
+import 'package:yaru_window/src/method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockYaruWindowPlatform
     with MockPlatformInterfaceMixin
     implements YaruWindowPlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 }
