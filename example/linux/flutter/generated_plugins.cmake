@@ -3,6 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  handy_window
+  yaru
   yaru_window
 )
 
