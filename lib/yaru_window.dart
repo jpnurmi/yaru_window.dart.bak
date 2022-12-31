@@ -1,7 +1,4 @@
-import 'src/platform_interface.dart';
+library yaru_window;
 
-class YaruWindow {
-  Future<String?> getPlatformVersion() {
-    return YaruWindowPlatform.instance.getPlatformVersion();
-  }
-}
+export 'src/window.dart';
+export 'src/window_state.dart';

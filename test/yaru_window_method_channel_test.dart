@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yaru_window/src/method_channel.dart';
 
 void main() {
-  MethodChannelYaruWindow platform = MethodChannelYaruWindow();
-  const MethodChannel channel = MethodChannel('yaru_window');
+  final platform = YaruWindowMethodChannel();
+  final channel = const MethodChannel('yaru_window');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -18,7 +18,7 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('getPlatformVersion', () async {
-    expect(await platform.getPlatformVersion(), '42');
-  });
+  // test('getPlatformVersion', () async {
+  //   expect(await platform.getPlatformVersion(), '42');
+  // });
 }

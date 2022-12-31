@@ -3,16 +3,33 @@ import 'package:flutter/services.dart';
 
 import 'platform_interface.dart';
 
-/// An implementation of [YaruWindowPlatform] that uses method channels.
-class MethodChannelYaruWindow extends YaruWindowPlatform {
-  /// The method channel used to interact with the native platform.
+class YaruWindowMethodChannel extends YaruWindowPlatform {
   @visibleForTesting
-  final methodChannel = const MethodChannel('yaru_window');
-
+  final channel = const MethodChannel('yaru_window');
+  @visibleForTesting
+  final events = const EventChannel('yaru_window/state');
   @override
-  Future<String?> getPlatformVersion() async {
-    final version =
-        await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
-  }
+  Future<void> close(int id) => channel.invokeMethod('close', id);
+  @override
+  Future<void> destroy(int id) => channel.invokeMethod('destroy', id);
+  @override
+  Future<void> fullscreen(int id) => channel.invokeMethod('fullscreen', id);
+  @override
+  Future<void> hide(int id) => channel.invokeMethod('hide', id);
+  @override
+  Future<void> init(int id) => channel.invokeMethod('init', id);
+  @override
+  Future<void> maximize(int id) => channel.invokeMethod('maximize', id);
+  @override
+  Future<void> menu(int id) => channel.invokeMethod('menu', id);
+  @override
+  Future<void> minimize(int id) => channel.invokeMethod('minimize', id);
+  @override
+  Future<void> move(int id) => channel.invokeMethod('move', id);
+  @override
+  Future<void> restore(int id) => channel.invokeMethod('restore', id);
+  @override
+  Future<void> show(int id) => channel.invokeMethod('show', id);
+  @override
+  Stream<Map> state(int id) => events.receiveBroadcastStream(id).cast<Map>();
 }
