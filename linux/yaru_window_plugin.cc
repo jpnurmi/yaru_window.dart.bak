@@ -53,8 +53,8 @@ static void show_window_menu(GtkWindow* window) {
   event->button.button = GDK_BUTTON_SECONDARY;
   event->button.device = pointer;
   event->button.window = handle;
-  event->button.x_root = origin.x;
-  event->button.y_root = origin.y;
+  event->button.x_root = cursor.x;
+  event->button.y_root = cursor.y;
   event->button.x = cursor.x - origin.x;
   event->button.y = cursor.y - origin.y;
   gdk_window_show_window_menu(handle, event);
