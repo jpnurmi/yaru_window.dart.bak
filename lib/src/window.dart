@@ -1,10 +1,19 @@
+import 'package:flutter/widgets.dart';
+
 import 'platform_interface.dart';
 import 'window_state.dart';
 
 class YaruWindow {
-  YaruWindow();
+  const YaruWindow._(this._id);
+  factory YaruWindow([int id = 0]) => _windows[id] ??= YaruWindow._(id);
 
-  final int _id = 0;
+  final int _id;
+  static final Map<int, YaruWindow> _windows = {};
+
+  static YaruWindow of(BuildContext context) {
+    const id = 0; // View.of(context).windowId;
+    return YaruWindow(id);
+  }
 
   Future<void> close() => YaruWindowPlatform.instance.close(_id);
   Future<void> destroy() => YaruWindowPlatform.instance.destroy(_id);
