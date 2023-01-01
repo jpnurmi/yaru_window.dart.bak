@@ -144,6 +144,7 @@ static FlValue* get_window_state(GtkWindow* window) {
   gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
   gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
   gboolean is_restorable = is_fullscreen || is_maximized || is_minimized;
+  gboolean is_visible = gtk_widget_is_visible(GTK_WIDGET(window));
 
   FlValue* result = fl_value_new_map();
   fl_value_set_string_take(result, "active", fl_value_new_bool(is_active));
@@ -160,6 +161,7 @@ static FlValue* get_window_state(GtkWindow* window) {
                            fl_value_new_bool(is_minimized));
   fl_value_set_string_take(result, "restorable",
                            fl_value_new_bool(is_restorable));
+  fl_value_set_string_take(result, "visible", fl_value_new_bool(is_visible));
   return result;
 }
 
