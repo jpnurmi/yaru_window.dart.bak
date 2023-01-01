@@ -209,10 +209,57 @@ static FlMethodErrorResponse* cancel_state_cb(FlEventChannel* channel,
   return nullptr;
 }
 
+// Returns true if the widget is GtkHeaderBar or HdyHeaderBar from libhandy.
+static gboolean is_header_bar(GtkWidget* widget) {
+  return widget != nullptr &&
+         (GTK_IS_HEADER_BAR(widget) ||
+          g_str_has_suffix(G_OBJECT_TYPE_NAME(widget), "HeaderBar"));
+}
+
+// Recursively searches for a Gtk/HdyHeaderBar in the widget tree.
+static GtkWidget* find_header_bar(GtkWidget* widget) {
+  if (is_header_bar(widget)) {
+    return widget;
+  }
+
+  if (GTK_IS_CONTAINER(widget)) {
+    g_autoptr(GList) children =
+        gtk_container_get_children(GTK_CONTAINER(widget));
+    for (GList* l = children; l != nullptr; l = l->next) {
+      GtkWidget* header_bar = find_header_bar(GTK_WIDGET(l->data));
+      if (header_bar != nullptr) {
+        return header_bar;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+// Returns the window's header bar which is typically a GtkHeaderBar used as
+// GtkWindow::titlebar, or a HdyHeaderBar as HdyWindow granchild.
+static GtkWidget* get_header_bar(GtkWindow* window) {
+  GtkWidget* titlebar = gtk_window_get_titlebar(window);
+  if (is_header_bar(titlebar)) {
+    return titlebar;
+  }
+  return find_header_bar(GTK_WIDGET(window));
+}
+
+static void init_window(GtkWindow* window) {
+  GtkWidget* header_bar = get_header_bar(window);
+  if (header_bar != nullptr) {
+    gtk_widget_hide(header_bar);
+  }
+}
+
 void yaru_window_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
   g_autoptr(YaruWindowPlugin) plugin =
       YARU_WINDOW_PLUGIN(g_object_new(yaru_window_plugin_get_type(), nullptr));
   plugin->registrar = FL_PLUGIN_REGISTRAR(g_object_ref(registrar));
+
+  GtkWindow* window = yaru_window_plugin_get_window(plugin, 0);
+  init_window(window);
 
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   FlBinaryMessenger* messenger = fl_plugin_registrar_get_messenger(registrar);
