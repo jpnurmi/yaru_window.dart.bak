@@ -139,33 +139,29 @@ static FlValue* get_window_state(GtkWindow* window) {
   GdkWindowState state = gdk_window_get_state(handle);
   GdkWindowTypeHint type = gdk_window_get_type_hint(handle);
 
+  gboolean is_active = gtk_window_is_active(window);
+  gboolean is_closable = gtk_window_get_deletable(window);
+  gboolean is_fullscreen = state & GDK_WINDOW_STATE_FULLSCREEN;
+  gboolean is_maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
+  gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
+  gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
+  gboolean is_restorable = is_minimized || is_maximized || is_fullscreen;
+
   FlValue* result = fl_value_new_map();
-  fl_value_set_string_take(result, "active",
-                           fl_value_new_bool(gtk_window_is_active(window)));
-  fl_value_set_string_take(result, "closable",
-                           fl_value_new_bool(gtk_window_get_deletable(window)));
-  fl_value_set_string_take(
-      result, "fullscreen",
-      fl_value_new_bool(state & GDK_WINDOW_STATE_FULLSCREEN));
-  fl_value_set_string_take(
-      result, "maximizable",
-      fl_value_new_bool(type == GDK_WINDOW_TYPE_HINT_NORMAL &&
-                        state & GDK_WINDOW_STATE_MAXIMIZED == 0));
-  fl_value_set_string_take(
-      result, "maximized",
-      fl_value_new_bool(state & GDK_WINDOW_STATE_MAXIMIZED));
-  fl_value_set_string_take(
-      result, "minimizable",
-      fl_value_new_bool(type == GDK_WINDOW_TYPE_HINT_NORMAL &&
-                        state & GDK_WINDOW_STATE_ICONIFIED == 0));
-  fl_value_set_string_take(
-      result, "minimized",
-      fl_value_new_bool(state & GDK_WINDOW_STATE_ICONIFIED));
-  fl_value_set_string_take(
-      result, "restorable",
-      fl_value_new_bool(state & (GDK_WINDOW_STATE_ICONIFIED |
-                                 GDK_WINDOW_STATE_MAXIMIZED |
-                                 GDK_WINDOW_STATE_FULLSCREEN)));
+  fl_value_set_string_take(result, "active", fl_value_new_bool(is_active));
+  fl_value_set_string_take(result, "closable", fl_value_new_bool(is_closable));
+  fl_value_set_string_take(result, "fullscreen",
+                           fl_value_new_bool(is_fullscreen));
+  fl_value_set_string_take(result, "maximizable",
+                           fl_value_new_bool(is_normal && !is_maximized));
+  fl_value_set_string_take(result, "maximized",
+                           fl_value_new_bool(is_maximized));
+  fl_value_set_string_take(result, "minimizable",
+                           fl_value_new_bool(is_normal && !is_minimized));
+  fl_value_set_string_take(result, "minimized",
+                           fl_value_new_bool(is_minimized));
+  fl_value_set_string_take(result, "restorable",
+                           fl_value_new_bool(is_restorable));
   return result;
 }
 
