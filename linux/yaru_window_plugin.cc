@@ -149,16 +149,23 @@ static FlValue* get_window_state(GtkWindow* window) {
       fl_value_new_bool(state & GDK_WINDOW_STATE_FULLSCREEN));
   fl_value_set_string_take(
       result, "maximizable",
-      fl_value_new_bool(type == GDK_WINDOW_TYPE_HINT_NORMAL));
+      fl_value_new_bool(type == GDK_WINDOW_TYPE_HINT_NORMAL &&
+                        state & GDK_WINDOW_STATE_MAXIMIZED == 0));
   fl_value_set_string_take(
       result, "maximized",
       fl_value_new_bool(state & GDK_WINDOW_STATE_MAXIMIZED));
   fl_value_set_string_take(
       result, "minimizable",
-      fl_value_new_bool(type == GDK_WINDOW_TYPE_HINT_NORMAL));
+      fl_value_new_bool(type == GDK_WINDOW_TYPE_HINT_NORMAL &&
+                        state & GDK_WINDOW_STATE_ICONIFIED == 0));
   fl_value_set_string_take(
       result, "minimized",
       fl_value_new_bool(state & GDK_WINDOW_STATE_ICONIFIED));
+  fl_value_set_string_take(
+      result, "restorable",
+      fl_value_new_bool(state & (GDK_WINDOW_STATE_ICONIFIED |
+                                 GDK_WINDOW_STATE_MAXIMIZED |
+                                 GDK_WINDOW_STATE_FULLSCREEN)));
   return result;
 }
 
