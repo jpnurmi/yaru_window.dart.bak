@@ -11,6 +11,7 @@ class YaruWindowState {
     this.isMinimizable,
     this.isMinimized,
     this.isRestorable,
+    this.isVisible,
   });
 
   factory YaruWindowState.fromJson(Map<String, dynamic> json) {
@@ -23,6 +24,7 @@ class YaruWindowState {
       isMinimizable: json['minimizable'] == true,
       isMinimized: json['minimized'] == true,
       isRestorable: json['restorable'] == true,
+      isVisible: json['visible'] == true,
     );
   }
 
@@ -34,6 +36,7 @@ class YaruWindowState {
   final bool? isMinimizable;
   final bool? isMinimized;
   final bool? isRestorable;
+  final bool? isVisible;
 
   Map<String, dynamic> toJson() {
     return {
@@ -45,6 +48,7 @@ class YaruWindowState {
       'minimizable': isMinimizable,
       'minimized': isMinimized,
       'restorable': isRestorable,
+      'visible': isVisible,
     };
   }
 
@@ -57,6 +61,7 @@ class YaruWindowState {
     bool? isMinimizable,
     bool? isMinimized,
     bool? isRestorable,
+    bool? isVisible,
   }) {
     return YaruWindowState(
       isActive: isActive ?? this.isActive,
@@ -67,6 +72,7 @@ class YaruWindowState {
       isMinimizable: isMinimizable ?? this.isMinimizable,
       isMinimized: isMinimized ?? this.isMinimized,
       isRestorable: isRestorable ?? this.isRestorable,
+      isVisible: isVisible ?? this.isVisible,
     );
   }
 
@@ -80,6 +86,7 @@ class YaruWindowState {
       isMinimizable: other?.isMinimizable,
       isMinimized: other?.isMinimized,
       isRestorable: other?.isRestorable,
+      isVisible: other?.isVisible,
     );
   }
 
@@ -94,7 +101,8 @@ class YaruWindowState {
         other.isMaximized == isMaximized &&
         other.isMinimizable == isMinimizable &&
         other.isMinimized == isMinimized &&
-        other.isRestorable == isRestorable;
+        other.isRestorable == isRestorable &&
+        other.isVisible == isVisible;
   }
 
   @override
@@ -108,11 +116,12 @@ class YaruWindowState {
       isMinimizable,
       isMinimized,
       isRestorable,
+      isVisible,
     );
   }
 
   @override
   String toString() {
-    return 'YaruWindowState(isActive: $isActive, isClosable: $isClosable, isFullscreen: $isFullscreen, isMaximizable: $isMaximizable, isMaximized: $isMaximized, isMinimizable: $isMinimizable, isMinimized: $isMinimized, isRestorable: $isRestorable)';
+    return 'YaruWindowState(isActive: $isActive, isClosable: $isClosable, isFullscreen: $isFullscreen, isMaximizable: $isMaximizable, isMaximized: $isMaximized, isMinimizable: $isMinimizable, isMinimized: $isMinimized, isRestorable: $isRestorable, isVisible: $isVisible)';
   }
 }
