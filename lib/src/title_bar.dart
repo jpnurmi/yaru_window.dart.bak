@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:yaru_widgets/yaru_widgets.dart';
@@ -38,7 +40,13 @@ class YaruWindowTitleBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
-  YaruWindowState get defaultState => const YaruWindowState();
+  YaruWindowState get defaultState => Platform.isMacOS
+      ? const YaruWindowState(
+          isClosable: false,
+          isMaximizable: false,
+          isMinimizable: false,
+        )
+      : const YaruWindowState();
 
   void onClose() => YaruWindow.of(context).close();
   void onMaximize() => YaruWindow.of(context).maximize();
