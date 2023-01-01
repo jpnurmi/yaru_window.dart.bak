@@ -19,7 +19,6 @@ class YaruWindow {
   Future<void> destroy() => YaruWindowPlatform.instance.destroy(_id);
   Future<void> fullscreen() => YaruWindowPlatform.instance.fullscreen(_id);
   Future<void> hide() => YaruWindowPlatform.instance.hide(_id);
-  Future<void> init() => YaruWindowPlatform.instance.init(_id);
   Future<void> maximize() => YaruWindowPlatform.instance.maximize(_id);
   Future<void> menu() => YaruWindowPlatform.instance.menu(_id);
   Future<void> minimize() => YaruWindowPlatform.instance.minimize(_id);

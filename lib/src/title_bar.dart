@@ -40,12 +40,6 @@ class YaruWindowTitleBar extends StatefulWidget implements PreferredSizeWidget {
 class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
   YaruWindowState get defaultState => const YaruWindowState();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   YaruWindow.of(context).init();
-  // }
-
   void onClose() => YaruWindow.of(context).close();
   void onMaximize() => YaruWindow.of(context).maximize();
   void onMenu() => YaruWindow.of(context).menu();

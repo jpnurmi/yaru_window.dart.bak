@@ -88,8 +88,6 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     gtk_window_fullscreen(window);
   } else if (strcmp(method, "hide") == 0) {
     gtk_widget_hide(GTK_WIDGET(window));
-  } else if (strcmp(method, "init") == 0) {
-    response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   } else if (strcmp(method, "maximize") == 0) {
     gtk_window_maximize(window);
   } else if (strcmp(method, "menu") == 0) {
