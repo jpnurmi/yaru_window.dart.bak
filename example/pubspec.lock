@@ -199,11 +199,13 @@ packages:
     source: hosted
     version: "1.0.0"
   yaru_widgets:
-    dependency: "direct main"
+    dependency: transitive
     description:
-      name: yaru_widgets
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: title-bar-2
+      resolved-ref: f6b97993fb901a58aae27ab540aae64f9a708bf5
+      url: "https://github.com/jpnurmi/yaru_widgets.dart"
+    source: git
     version: "2.0.0-beta-3"
   yaru_window:
     dependency: "direct main"

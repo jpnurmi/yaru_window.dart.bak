@@ -145,7 +145,7 @@ static FlValue* get_window_state(GtkWindow* window) {
   gboolean is_maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
   gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
   gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
-  gboolean is_restorable = is_minimized || is_maximized || is_fullscreen;
+  gboolean is_restorable = is_fullscreen || is_maximized || is_minimized;
 
   FlValue* result = fl_value_new_map();
   fl_value_set_string_take(result, "active", fl_value_new_bool(is_active));

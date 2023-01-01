@@ -11,10 +11,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return YaruTheme(
       builder: (context, yaru, child) => MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: yaru.theme,
         darkTheme: yaru.darkTheme,
         home: Scaffold(
-          appBar: AppBar(title: const Text('YaruWindow')),
+          appBar: const YaruWindowTitleBar(title: Text('YaruWindow')),
           body: StreamBuilder(
             stream: YaruWindow.of(context).state(),
             builder: (context, snapshot) => Text('${snapshot.data}'),
