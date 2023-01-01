@@ -6,9 +6,9 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <yaru_window/yaru_window_plugin_c_api.h>
+#include <yaru_window/yaru_window_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  YaruWindowPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("YaruWindowPluginCApi"));
+  YaruWindowPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("YaruWindowPlugin"));
 }

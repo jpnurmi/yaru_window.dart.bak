@@ -12,18 +12,11 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 # not be changed
 set(PLUGIN_NAME "yaru_window_plugin")
 
-# Any new source files that you add to the plugin should be added here.
-list(APPEND PLUGIN_SOURCES
-  "yaru_window_plugin.cpp"
-  "yaru_window_plugin.h"
-)
-
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
-  "include/yaru_window/yaru_window_plugin_c_api.h"
-  "yaru_window_plugin_c_api.cpp"
-  ${PLUGIN_SOURCES}
+  "yaru_window.cpp"
+  "yaru_window_plugin.cpp"
 )
 
 # Apply a standard set of build settings that are configured in the
@@ -42,7 +35,7 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
+target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin dwmapi)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
