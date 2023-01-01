@@ -31,5 +31,13 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @override
   Future<void> show(int id) => channel.invokeMethod('show', id);
   @override
-  Stream<Map> state(int id) => events.receiveBroadcastStream(id).cast<Map>();
+  Stream<Map> state(int id) async* {
+    final state = await channel.invokeMapMethod('state', id);
+    if (state != null) yield state;
+    yield* _stateChanges.where((event) => event['id'] == id);
+  }
+
+  Stream<Map>? __stateChanges;
+  Stream<Map> get _stateChanges =>
+      __stateChanges ??= events.receiveBroadcastStream().cast<Map>();
 }

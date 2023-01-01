@@ -6,6 +6,8 @@
 struct _YaruWindowPlugin {
   GObject parent_instance;
   FlPluginRegistrar* registrar;
+  FlMethodChannel* method_channel;
+  FlEventChannel* event_channel;
   GHashTable* signals;
 };
 
@@ -15,6 +17,40 @@ static GtkWindow* yaru_window_plugin_get_window(YaruWindowPlugin* self,
                                                 gint window_id) {
   FlView* view = fl_plugin_registrar_get_view(self->registrar);
   return GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(view)));
+}
+
+static FlValue* get_window_state(GtkWindow* window) {
+  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
+  GdkWindowState state = gdk_window_get_state(handle);
+  GdkWindowTypeHint type = gdk_window_get_type_hint(handle);
+
+  gboolean is_active = gtk_window_is_active(window);
+  gboolean is_closable = gtk_window_get_deletable(window);
+  gboolean is_fullscreen = state & GDK_WINDOW_STATE_FULLSCREEN;
+  gboolean is_maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
+  gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
+  gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
+  gboolean is_restorable = is_fullscreen || is_maximized || is_minimized;
+  gboolean is_visible = gtk_widget_is_visible(GTK_WIDGET(window));
+
+  FlValue* result = fl_value_new_map();
+  fl_value_set_string_take(result, "id", fl_value_new_int(0));  // TODO
+  fl_value_set_string_take(result, "active", fl_value_new_bool(is_active));
+  fl_value_set_string_take(result, "closable", fl_value_new_bool(is_closable));
+  fl_value_set_string_take(result, "fullscreen",
+                           fl_value_new_bool(is_fullscreen));
+  fl_value_set_string_take(result, "maximizable",
+                           fl_value_new_bool(is_normal && !is_maximized));
+  fl_value_set_string_take(result, "maximized",
+                           fl_value_new_bool(is_maximized));
+  fl_value_set_string_take(result, "minimizable",
+                           fl_value_new_bool(is_normal && !is_minimized));
+  fl_value_set_string_take(result, "minimized",
+                           fl_value_new_bool(is_minimized));
+  fl_value_set_string_take(result, "restorable",
+                           fl_value_new_bool(is_restorable));
+  fl_value_set_string_take(result, "visible", fl_value_new_bool(is_visible));
+  return result;
 }
 
 static GdkPoint get_cursor_position(GtkWindow* window) {
@@ -72,6 +108,26 @@ static void restore_window(GtkWindow* window) {
   }
 }
 
+static gboolean window_state_cb(GtkWidget* window, GdkEventWindowState* event,
+                                gpointer user_data) {
+  FlEventChannel* channel = FL_EVENT_CHANNEL(user_data);
+  g_autoptr(FlValue) state = get_window_state(GTK_WINDOW(window));
+  fl_event_channel_send(channel, state, nullptr, nullptr);
+  return false;
+}
+
+static void yaru_window_plugin_listen_window(YaruWindowPlugin* self,
+                                             gint window_id) {
+  GtkWindow* window = yaru_window_plugin_get_window(self, window_id);
+  if (!g_hash_table_contains(self->signals, GINT_TO_POINTER(window_id))) {
+    gint handler =
+        g_signal_connect(window, "window-state-event",
+                         G_CALLBACK(window_state_cb), self->event_channel);
+    g_hash_table_insert(self->signals, GINT_TO_POINTER(window_id),
+                        GINT_TO_POINTER(handler));
+  }
+}
+
 static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
                                                   FlMethodCall* method_call) {
   g_autoptr(FlMethodResponse) response = nullptr;
@@ -100,6 +156,10 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     restore_window(window);
   } else if (strcmp(method, "show") == 0) {
     gtk_widget_show(GTK_WIDGET(window));
+  } else if (strcmp(method, "state") == 0) {
+    g_autoptr(FlValue) state = get_window_state(window);
+    yaru_window_plugin_listen_window(self, window_id);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(state));
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
@@ -114,6 +174,8 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
 static void yaru_window_plugin_dispose(GObject* object) {
   YaruWindowPlugin* self = YARU_WINDOW_PLUGIN(object);
   g_clear_object(&self->registrar);
+  g_clear_object(&self->method_channel);
+  g_clear_object(&self->event_channel);
   g_clear_pointer(&self->signals, g_hash_table_unref);
   G_OBJECT_CLASS(yaru_window_plugin_parent_class)->dispose(object);
 }
@@ -132,76 +194,27 @@ static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call,
   yaru_window_plugin_handle_method_call(plugin, method_call);
 }
 
-static FlValue* get_window_state(GtkWindow* window) {
-  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
-  GdkWindowState state = gdk_window_get_state(handle);
-  GdkWindowTypeHint type = gdk_window_get_type_hint(handle);
-
-  gboolean is_active = gtk_window_is_active(window);
-  gboolean is_closable = gtk_window_get_deletable(window);
-  gboolean is_fullscreen = state & GDK_WINDOW_STATE_FULLSCREEN;
-  gboolean is_maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
-  gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
-  gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
-  gboolean is_restorable = is_fullscreen || is_maximized || is_minimized;
-  gboolean is_visible = gtk_widget_is_visible(GTK_WIDGET(window));
-
-  FlValue* result = fl_value_new_map();
-  fl_value_set_string_take(result, "active", fl_value_new_bool(is_active));
-  fl_value_set_string_take(result, "closable", fl_value_new_bool(is_closable));
-  fl_value_set_string_take(result, "fullscreen",
-                           fl_value_new_bool(is_fullscreen));
-  fl_value_set_string_take(result, "maximizable",
-                           fl_value_new_bool(is_normal && !is_maximized));
-  fl_value_set_string_take(result, "maximized",
-                           fl_value_new_bool(is_maximized));
-  fl_value_set_string_take(result, "minimizable",
-                           fl_value_new_bool(is_normal && !is_minimized));
-  fl_value_set_string_take(result, "minimized",
-                           fl_value_new_bool(is_minimized));
-  fl_value_set_string_take(result, "restorable",
-                           fl_value_new_bool(is_restorable));
-  fl_value_set_string_take(result, "visible", fl_value_new_bool(is_visible));
-  return result;
-}
-
-static gboolean window_state_cb(GtkWidget* window, GdkEventWindowState* event,
-                                gpointer user_data) {
-  FlEventChannel* channel = FL_EVENT_CHANNEL(user_data);
-  g_autoptr(FlValue) state = get_window_state(GTK_WINDOW(window));
-  fl_event_channel_send(channel, state, nullptr, nullptr);
-  return false;
-}
-
 static FlMethodErrorResponse* listen_state_cb(FlEventChannel* channel,
                                               FlValue* args,
                                               gpointer user_data) {
-  YaruWindowPlugin* plugin = YARU_WINDOW_PLUGIN(user_data);
-  gint window_id = fl_value_get_int(args);
-  GtkWindow* window = yaru_window_plugin_get_window(plugin, window_id);
-  if (!g_hash_table_contains(plugin->signals, GINT_TO_POINTER(window_id))) {
-    gint handler = g_signal_connect(window, "window-state-event",
-                                    G_CALLBACK(window_state_cb), channel);
-    g_hash_table_insert(plugin->signals, GINT_TO_POINTER(window_id),
-                        GINT_TO_POINTER(handler));
-  }
-  g_autoptr(FlValue) state = get_window_state(window);
-  fl_event_channel_send(channel, state, nullptr, nullptr);
   return nullptr;
+}
+
+static gboolean remove_signal(gpointer key, gpointer value,
+                              gpointer user_data) {
+  YaruWindowPlugin* plugin = YARU_WINDOW_PLUGIN(user_data);
+  gint window_id = GPOINTER_TO_INT(key);
+  gint handler = GPOINTER_TO_INT(value);
+  GtkWindow* window = yaru_window_plugin_get_window(plugin, window_id);
+  g_signal_handler_disconnect(window, handler);
+  return true;
 }
 
 static FlMethodErrorResponse* cancel_state_cb(FlEventChannel* channel,
                                               FlValue* args,
                                               gpointer user_data) {
   YaruWindowPlugin* plugin = YARU_WINDOW_PLUGIN(user_data);
-  gint window_id = fl_value_get_int(args);
-  GtkWindow* window = yaru_window_plugin_get_window(plugin, window_id);
-  gint handler = GPOINTER_TO_INT(
-      g_hash_table_lookup(plugin->signals, GINT_TO_POINTER(window_id)));
-  if (handler != 0) {
-    g_signal_handler_disconnect(window, handler);
-    g_hash_table_remove(plugin->signals, GINT_TO_POINTER(window_id));
-  }
+  g_hash_table_foreach_remove(plugin->signals, remove_signal, plugin);
   return nullptr;
 }
 
@@ -260,14 +273,15 @@ void yaru_window_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   FlBinaryMessenger* messenger = fl_plugin_registrar_get_messenger(registrar);
 
-  g_autoptr(FlMethodChannel) method_channel =
+  plugin->method_channel =
       fl_method_channel_new(messenger, "yaru_window", FL_METHOD_CODEC(codec));
   fl_method_channel_set_method_call_handler(
-      method_channel, method_call_cb, g_object_ref(plugin), g_object_unref);
+      plugin->method_channel, method_call_cb, g_object_ref(plugin),
+      g_object_unref);
 
-  g_autoptr(FlEventChannel) event_channel = fl_event_channel_new(
-      messenger, "yaru_window/state", FL_METHOD_CODEC(codec));
-  fl_event_channel_set_stream_handlers(event_channel, listen_state_cb,
+  plugin->event_channel = fl_event_channel_new(messenger, "yaru_window/state",
+                                               FL_METHOD_CODEC(codec));
+  fl_event_channel_set_stream_handlers(plugin->event_channel, listen_state_cb,
                                        cancel_state_cb, g_object_ref(plugin),
                                        g_object_unref);
 }
