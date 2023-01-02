@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:yaru_widgets/yaru_widgets.dart';
 
 import 'window.dart';
-import 'window_state.dart';
+import 'state.dart';
 
 class YaruWindowTitleBar extends StatefulWidget implements PreferredSizeWidget {
   const YaruWindowTitleBar({
@@ -60,7 +60,7 @@ class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
     if (kIsWeb) return const SizedBox.shrink();
     final window = YaruWindow.of(context);
     return StreamBuilder<YaruWindowState>(
-      stream: window.state(),
+      stream: window.states(),
       builder: (context, snapshot) {
         final state = snapshot.data?.merge(defaultState) ?? defaultState;
         return YaruTitleBar(

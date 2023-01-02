@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         home: Scaffold(
           appBar: const YaruWindowTitleBar(title: Text('YaruWindow')),
           body: StreamBuilder<YaruWindowState>(
-            stream: window.state(),
+            stream: window.states(),
             builder: (context, snapshot) {
               final state = snapshot.data;
               print(state);

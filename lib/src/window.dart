@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 
+import 'geometry.dart';
 import 'platform_interface.dart';
-import 'window_state.dart';
+import 'state.dart';
 
 class YaruWindow {
   const YaruWindow._(this._id);
@@ -15,19 +16,38 @@ class YaruWindow {
     return YaruWindow(id);
   }
 
-  Future<void> close() => YaruWindowPlatform.instance.close(_id);
-  Future<void> destroy() => YaruWindowPlatform.instance.destroy(_id);
-  Future<void> fullscreen() => YaruWindowPlatform.instance.fullscreen(_id);
-  Future<void> hide() => YaruWindowPlatform.instance.hide(_id);
-  Future<void> maximize() => YaruWindowPlatform.instance.maximize(_id);
-  Future<void> menu() => YaruWindowPlatform.instance.menu(_id);
-  Future<void> minimize() => YaruWindowPlatform.instance.minimize(_id);
-  Future<void> move() => YaruWindowPlatform.instance.move(_id);
-  Future<void> restore() => YaruWindowPlatform.instance.restore(_id);
-  Future<void> show() => YaruWindowPlatform.instance.show(_id);
-  Stream<YaruWindowState> state() => YaruWindowPlatform.instance
-      .state(_id)
-      .map((json) => YaruWindowState.fromJson(json.cast<String, dynamic>()));
-  Future<void> setState(YaruWindowState state) =>
-      YaruWindowPlatform.instance.setState(_id, state.toJson());
+  YaruWindowPlatform get _platform => YaruWindowPlatform.instance;
+
+  Future<void> close() => _platform.close(_id);
+  Future<void> destroy() => _platform.destroy(_id);
+  Future<void> fullscreen() => _platform.fullscreen(_id);
+  Future<YaruWindowGeometry> geometry() =>
+      _platform.geometry(_id).then(YaruWindowGeometry.fromJson);
+  Future<void> hide() => _platform.hide(_id);
+  Future<void> maximize() => _platform.maximize(_id);
+  Future<void> menu() => _platform.menu(_id);
+  Future<void> minimize() => _platform.minimize(_id);
+  Future<void> move() => _platform.move(_id);
+  Future<void> restore() => _platform.restore(_id);
+  Future<void> show() => _platform.show(_id);
+  Future<YaruWindowState> state() =>
+      _platform.state(_id).then(YaruWindowState.fromJson);
+
+  Stream<YaruWindowGeometry> geometries() async* {
+    yield await geometry();
+    yield* _platform.geometries(_id).map(YaruWindowGeometry.fromJson);
+  }
+
+  Stream<YaruWindowState> states() async* {
+    yield await state();
+    yield* _platform.states(_id).map(YaruWindowState.fromJson);
+  }
+
+  Future<void> setGeometry(YaruWindowGeometry geometry) {
+    return _platform.setState(_id, geometry.toJson());
+  }
+
+  Future<void> setState(YaruWindowState state) {
+    return _platform.setState(_id, state.toJson());
+  }
 }

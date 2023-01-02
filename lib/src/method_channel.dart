@@ -7,41 +7,63 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @visibleForTesting
   final channel = const MethodChannel('yaru_window');
   @visibleForTesting
-  final events = const EventChannel('yaru_window/state');
-  @override
-  Future<void> close(int id) => channel.invokeMethod('close', [id]);
-  @override
-  Future<void> destroy(int id) => channel.invokeMethod('destroy', [id]);
-  @override
-  Future<void> fullscreen(int id) => channel.invokeMethod('fullscreen', [id]);
-  @override
-  Future<void> hide(int id) => channel.invokeMethod('hide', [id]);
-  @override
-  Future<void> init(int id) => channel.invokeMethod('init', [id]);
-  @override
-  Future<void> maximize(int id) => channel.invokeMethod('maximize', [id]);
-  @override
-  Future<void> menu(int id) => channel.invokeMethod('menu', [id]);
-  @override
-  Future<void> minimize(int id) => channel.invokeMethod('minimize', [id]);
-  @override
-  Future<void> move(int id) => channel.invokeMethod('move', [id]);
-  @override
-  Future<void> restore(int id) => channel.invokeMethod('restore', [id]);
-  @override
-  Future<void> show(int id) => channel.invokeMethod('show', [id]);
-  @override
-  Stream<Map> state(int id) async* {
-    final state = await channel.invokeMapMethod('state', [id]);
-    if (state != null) yield state;
-    yield* _stateChanges.where((event) => event['id'] == id);
+  final events = const EventChannel('yaru_window/events');
+
+  Future<T?> _invokeMethod<T>(String method, [dynamic arguments]) {
+    return channel.invokeMethod<T>(method, arguments);
+  }
+
+  Future<Map<K, V>> _invokeMapMethod<K, V>(String method, [dynamic arguments]) {
+    return channel.invokeMapMethod<K, V>(method, arguments).then((v) => v!);
+  }
+
+  Stream<Map>? _events;
+  Stream<JsonObject> _receiveEvents(int id, String type) {
+    _events ??= events.receiveBroadcastStream().cast<Map>();
+    return _events!
+        .where((event) => event['id'] == id && event['type'] == type)
+        .map((event) => event.cast<String, dynamic>());
   }
 
   @override
-  Future<void> setState(int id, Map state) =>
-      channel.invokeMethod('setState', [id, state]);
+  Future<void> close(int id) => _invokeMethod('close', [id]);
+  @override
+  Future<void> destroy(int id) => _invokeMethod('destroy', [id]);
+  @override
+  Future<void> fullscreen(int id) => _invokeMethod('fullscreen', [id]);
+  @override
+  Future<JsonObject> geometry(int id) => _invokeMapMethod('geometry', [id]);
+  @override
+  Future<void> hide(int id) => _invokeMethod('hide', [id]);
+  @override
+  Future<void> init(int id) => _invokeMethod('init', [id]);
+  @override
+  Future<void> maximize(int id) => _invokeMethod('maximize', [id]);
+  @override
+  Future<void> menu(int id) => _invokeMethod('menu', [id]);
+  @override
+  Future<void> minimize(int id) => _invokeMethod('minimize', [id]);
+  @override
+  Future<void> move(int id) => _invokeMethod('move', [id]);
+  @override
+  Future<void> restore(int id) => _invokeMethod('restore', [id]);
+  @override
+  Future<void> show(int id) => _invokeMethod('show', [id]);
+  @override
+  Future<JsonObject> state(int id) => _invokeMapMethod('state', [id]);
 
-  Stream<Map>? __stateChanges;
-  Stream<Map> get _stateChanges =>
-      __stateChanges ??= events.receiveBroadcastStream().cast<Map>();
+  @override
+  Stream<JsonObject> geometries(int id) => _receiveEvents(id, 'geometry');
+  @override
+  Stream<JsonObject> states(int id) => _receiveEvents(id, 'state');
+
+  @override
+  Future<void> setGeometry(int id, JsonObject geometry) {
+    return _invokeMethod('setGeometry', [id, geometry]);
+  }
+
+  @override
+  Future<void> setState(int id, JsonObject state) {
+    return _invokeMethod('setState', [id, state]);
+  }
 }
