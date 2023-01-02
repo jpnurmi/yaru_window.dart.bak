@@ -16,6 +16,7 @@ set(PLUGIN_NAME "yaru_window_plugin")
 #
 # Any new source files that you add to the plugin should be added here.
 add_library(${PLUGIN_NAME} SHARED
+  "yaru_window.cc"
   "yaru_window_plugin.cc"
 )
 

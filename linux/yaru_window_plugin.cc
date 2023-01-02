@@ -3,6 +3,8 @@
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
 
+#include "yaru_window.h"
+
 struct _YaruWindowPlugin {
   GObject parent_instance;
   FlPluginRegistrar* registrar;
@@ -17,199 +19,6 @@ static GtkWindow* yaru_window_plugin_get_window(YaruWindowPlugin* self,
                                                 gint window_id) {
   FlView* view = fl_plugin_registrar_get_view(self->registrar);
   return GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(view)));
-}
-
-static FlValue* get_window_geometry(GtkWindow* window) {
-  gint x, y;
-  gtk_window_get_position(window, &x, &y);
-  gint width, height;
-  gtk_window_get_size(window, &width, &height);
-
-  FlValue* result = fl_value_new_map();
-  fl_value_set_string_take(result, "id", fl_value_new_int(0));  // TODO
-  fl_value_set_string_take(result, "type", fl_value_new_string("geometry"));
-  fl_value_set_string_take(result, "x", fl_value_new_int(x));
-  fl_value_set_string_take(result, "y", fl_value_new_int(y));
-  fl_value_set_string_take(result, "width", fl_value_new_int(width));
-  fl_value_set_string_take(result, "height", fl_value_new_int(height));
-  return result;
-}
-
-static void set_window_geometry(GtkWindow* window, FlValue* geometry) {
-  FlValue* x = fl_value_lookup_string(geometry, "x");
-  FlValue* y = fl_value_lookup_string(geometry, "y");
-  FlValue* width = fl_value_lookup_string(geometry, "width");
-  FlValue* height = fl_value_lookup_string(geometry, "height");
-  FlValue* maximum_width = fl_value_lookup_string(geometry, "maximumWidth");
-  FlValue* maximum_height = fl_value_lookup_string(geometry, "maximumHeight");
-  FlValue* minimum_width = fl_value_lookup_string(geometry, "minimumWidth");
-  FlValue* minimum_height = fl_value_lookup_string(geometry, "minimumHeight");
-
-  gboolean has_x = fl_value_get_type(x) == FL_VALUE_TYPE_INT;
-  gboolean has_y = fl_value_get_type(y) == FL_VALUE_TYPE_INT;
-  if (has_x || has_y) {
-    GdkPoint pos;
-    if (!has_x || !has_y) {
-      gtk_window_get_position(window, &pos.x, &pos.y);
-    }
-    if (has_x) {
-      pos.x = fl_value_get_int(x);
-    }
-    if (has_y) {
-      pos.y = fl_value_get_int(y);
-    }
-    gtk_window_move(window, pos.x, pos.y);
-  }
-
-  gboolean has_width = fl_value_get_type(width) == FL_VALUE_TYPE_INT;
-  gboolean has_height = fl_value_get_type(height) == FL_VALUE_TYPE_INT;
-  if (has_width || has_height) {
-    GdkRectangle size;
-    if (!has_width || !has_height) {
-      gtk_window_get_size(window, &size.width, &size.height);
-    }
-    if (has_width) {
-      size.width = fl_value_get_int(width);
-    }
-    if (has_height) {
-      size.height = fl_value_get_int(height);
-    }
-    gtk_window_resize(window, size.width, size.height);
-  }
-
-  GdkWindowHints mask = GdkWindowHints(0);
-  GdkGeometry hints = {
-      .min_width = 0,
-      .min_height = 0,
-      .max_width = G_MAXINT,
-      .max_height = G_MAXINT,
-  };
-  if (fl_value_get_type(maximum_width) == FL_VALUE_TYPE_INT) {
-    mask = GdkWindowHints(mask | GDK_HINT_MAX_SIZE);
-    hints.max_width = fl_value_get_int(maximum_width);
-  }
-  if (fl_value_get_type(maximum_height) == FL_VALUE_TYPE_INT) {
-    mask = GdkWindowHints(mask | GDK_HINT_MAX_SIZE);
-    hints.max_height = fl_value_get_int(maximum_height);
-  }
-  if (fl_value_get_type(minimum_width) == FL_VALUE_TYPE_INT) {
-    mask = GdkWindowHints(mask | GDK_HINT_MIN_SIZE);
-    hints.min_width = fl_value_get_int(minimum_width);
-  }
-  if (fl_value_get_type(minimum_height) == FL_VALUE_TYPE_INT) {
-    mask = GdkWindowHints(mask | GDK_HINT_MIN_SIZE);
-    hints.min_height = fl_value_get_int(minimum_height);
-  }
-  if (mask != 0) {
-    gtk_window_set_geometry_hints(window, nullptr, &hints, mask);
-  }
-}
-
-static FlValue* get_window_state(GtkWindow* window) {
-  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
-  GdkWindowState state = gdk_window_get_state(handle);
-  GdkWindowTypeHint type = gdk_window_get_type_hint(handle);
-
-  gboolean active = gtk_window_is_active(window);
-  gboolean closable = gtk_window_get_deletable(window);
-  gboolean fullscreen = state & GDK_WINDOW_STATE_FULLSCREEN;
-  gboolean maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
-  gboolean minimized = state & GDK_WINDOW_STATE_ICONIFIED;
-  gboolean normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
-  gboolean restorable = normal && (fullscreen || maximized || minimized);
-  const gchar* title = gtk_window_get_title(window);
-  gboolean visible = gtk_widget_is_visible(GTK_WIDGET(window));
-
-  FlValue* result = fl_value_new_map();
-  fl_value_set_string_take(result, "id", fl_value_new_int(0));  // TODO
-  fl_value_set_string_take(result, "type", fl_value_new_string("state"));
-  fl_value_set_string_take(result, "active", fl_value_new_bool(active));
-  fl_value_set_string_take(result, "closable", fl_value_new_bool(closable));
-  fl_value_set_string_take(result, "fullscreen", fl_value_new_bool(fullscreen));
-  fl_value_set_string_take(result, "maximizable",
-                           fl_value_new_bool(normal && !maximized));
-  fl_value_set_string_take(result, "maximized", fl_value_new_bool(maximized));
-  fl_value_set_string_take(result, "minimizable",
-                           fl_value_new_bool(normal && !minimized));
-  fl_value_set_string_take(result, "minimized", fl_value_new_bool(minimized));
-  fl_value_set_string_take(result, "restorable", fl_value_new_bool(restorable));
-  fl_value_set_string_take(result, "title", fl_value_new_string(title));
-  fl_value_set_string_take(result, "visible", fl_value_new_bool(visible));
-  return result;
-}
-
-static void set_window_state(GtkWindow* window, FlValue* state) {
-  FlValue* active = fl_value_lookup_string(state, "active");
-  FlValue* closable = fl_value_lookup_string(state, "closable");
-  FlValue* fullscreen = fl_value_lookup_string(state, "fullscreen");
-  FlValue* maximizable = fl_value_lookup_string(state, "maximizable");
-  FlValue* maximized = fl_value_lookup_string(state, "maximized");
-  FlValue* minimizable = fl_value_lookup_string(state, "minimizable");
-  FlValue* minimized = fl_value_lookup_string(state, "minimized");
-  FlValue* restorable = fl_value_lookup_string(state, "restorable");
-  FlValue* title = fl_value_lookup_string(state, "title");
-  FlValue* visible = fl_value_lookup_string(state, "visible");
-
-  if (fl_value_get_type(active) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(active)) {
-      gtk_window_present(window);
-    }
-  }
-  if (fl_value_get_type(closable) == FL_VALUE_TYPE_BOOL) {
-    gtk_window_set_deletable(window, fl_value_get_bool(closable));
-  }
-  if (fl_value_get_type(fullscreen) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(fullscreen)) {
-      gtk_window_fullscreen(window);
-    } else {
-      gtk_window_unfullscreen(window);
-    }
-  }
-  if (fl_value_get_type(maximizable) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(maximizable)) {
-      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_NORMAL);
-    } else {
-      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
-    }
-  }
-  if (fl_value_get_type(maximized) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(maximized)) {
-      gtk_window_maximize(window);
-    } else {
-      gtk_window_unmaximize(window);
-    }
-  }
-  if (fl_value_get_type(minimizable) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(minimizable)) {
-      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_NORMAL);
-    } else {
-      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
-    }
-  }
-  if (fl_value_get_type(minimized) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(minimized)) {
-      gtk_window_iconify(window);
-    } else {
-      gtk_window_deiconify(window);
-    }
-  }
-  if (fl_value_get_type(restorable) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(restorable)) {
-      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_NORMAL);
-    } else {
-      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
-    }
-  }
-  if (fl_value_get_type(title) == FL_VALUE_TYPE_STRING) {
-    gtk_window_set_title(window, fl_value_get_string(title));
-  }
-  if (fl_value_get_type(visible) == FL_VALUE_TYPE_BOOL) {
-    if (fl_value_get_bool(visible)) {
-      gtk_widget_show(GTK_WIDGET(window));
-    } else {
-      gtk_widget_hide(GTK_WIDGET(window));
-    }
-  }
 }
 
 static GdkPoint get_cursor_position(GtkWindow* window) {
@@ -270,7 +79,7 @@ static void restore_window(GtkWindow* window) {
 static gboolean window_configure_cb(GtkWidget* window, GdkEventConfigure* event,
                                     gpointer user_data) {
   FlEventChannel* channel = FL_EVENT_CHANNEL(user_data);
-  g_autoptr(FlValue) geometry = get_window_geometry(GTK_WINDOW(window));
+  g_autoptr(FlValue) geometry = yaru_window_get_geometry(GTK_WINDOW(window));
   fl_event_channel_send(channel, geometry, nullptr, nullptr);
   return false;
 }
@@ -278,7 +87,7 @@ static gboolean window_configure_cb(GtkWidget* window, GdkEventConfigure* event,
 static gboolean window_state_cb(GtkWidget* window, GdkEventWindowState* event,
                                 gpointer user_data) {
   FlEventChannel* channel = FL_EVENT_CHANNEL(user_data);
-  g_autoptr(FlValue) state = get_window_state(GTK_WINDOW(window));
+  g_autoptr(FlValue) state = yaru_window_get_state(GTK_WINDOW(window));
   fl_event_channel_send(channel, state, nullptr, nullptr);
   return false;
 }
@@ -286,7 +95,7 @@ static gboolean window_state_cb(GtkWidget* window, GdkEventWindowState* event,
 static void window_property_cb(GtkWindow* window, GParamSpec*,
                                gpointer user_data) {
   FlEventChannel* channel = FL_EVENT_CHANNEL(user_data);
-  g_autoptr(FlValue) state = get_window_state(GTK_WINDOW(window));
+  g_autoptr(FlValue) state = yaru_window_get_state(GTK_WINDOW(window));
   fl_event_channel_send(channel, state, nullptr, nullptr);
 }
 
@@ -326,8 +135,13 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
   } else if (strcmp(method, "fullscreen") == 0) {
     gtk_window_fullscreen(window);
   } else if (strcmp(method, "geometry") == 0) {
-    g_autoptr(FlValue) geometry = get_window_geometry(window);
-    response = FL_METHOD_RESPONSE(fl_method_success_response_new(geometry));
+    if (fl_value_get_length(args) == 2) {
+      FlValue* geometry = fl_value_get_list_value(args, 1);
+      yaru_window_set_geometry(window, geometry);
+    } else {
+      g_autoptr(FlValue) geometry = yaru_window_get_geometry(window);
+      response = FL_METHOD_RESPONSE(fl_method_success_response_new(geometry));
+    }
   } else if (strcmp(method, "hide") == 0) {
     gtk_widget_hide(GTK_WIDGET(window));
   } else if (strcmp(method, "maximize") == 0) {
@@ -343,16 +157,21 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
   } else if (strcmp(method, "show") == 0) {
     gtk_widget_show(GTK_WIDGET(window));
   } else if (strcmp(method, "state") == 0) {
-    g_autoptr(FlValue) state = get_window_state(window);
-    response = FL_METHOD_RESPONSE(fl_method_success_response_new(state));
-  } else if (strcmp(method, "setGeometry") == 0) {
-    FlValue* geometry = fl_value_get_list_value(args, 1);
-    set_window_geometry(window, geometry);
-    response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
-  } else if (strcmp(method, "setState") == 0) {
-    FlValue* state = fl_value_get_list_value(args, 1);
-    set_window_state(window, state);
-    response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
+    if (fl_value_get_length(args) == 2) {
+      FlValue* state = fl_value_get_list_value(args, 1);
+      yaru_window_set_state(window, state);
+    } else {
+      g_autoptr(FlValue) state = yaru_window_get_state(window);
+      response = FL_METHOD_RESPONSE(fl_method_success_response_new(state));
+    }
+  } else if (strcmp(method, "style") == 0) {
+    if (fl_value_get_length(args) == 2) {
+      FlValue* style = fl_value_get_list_value(args, 1);
+      yaru_window_set_style(window, style);
+    } else {
+      g_autoptr(FlValue) style = yaru_window_get_style(window);
+      response = FL_METHOD_RESPONSE(fl_method_success_response_new(style));
+    }
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
