@@ -61,16 +61,16 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
 
   @override
   Future<void> setGeometry(int id, JsonObject geometry) {
-    return _invokeMethod('setGeometry', [id, geometry]);
+    return _invokeMethod('seometry', [id, geometry]);
   }
 
   @override
   Future<void> setState(int id, JsonObject state) {
-    return _invokeMethod('setState', [id, state]);
+    return _invokeMethod('state', [id, state]);
   }
 
   @override
   Future<void> setStyle(int id, JsonObject style) {
-    return _invokeMethod('setStyle', [id, style]);
+    return _invokeMethod('style', [id, style]);
   }
 }
