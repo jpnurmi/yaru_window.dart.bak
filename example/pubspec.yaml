@@ -10,6 +10,10 @@ dependencies:
     sdk: flutter
   handy_window: ^0.1.9
   yaru: ^0.4.5
+  yaru_widgets: # ^2.0.0
+    git:
+      url: https://github.com/jpnurmi/yaru_widgets.dart
+      ref: title-bar-2
   yaru_window:
     path: ../
 
