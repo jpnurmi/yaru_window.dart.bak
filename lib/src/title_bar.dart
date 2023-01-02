@@ -42,9 +42,9 @@ class YaruWindowTitleBar extends StatefulWidget implements PreferredSizeWidget {
 class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
   YaruWindowState get defaultState => Platform.isMacOS
       ? const YaruWindowState(
-          isClosable: false,
-          isMaximizable: false,
-          isMinimizable: false,
+          closable: false,
+          maximizable: false,
+          minimizable: false,
         )
       : const YaruWindowState();
 
@@ -69,11 +69,11 @@ class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
           trailing: widget.trailing,
           centerTitle: widget.centerTitle,
           backgroundColor: widget.backgroundColor,
-          isActive: state.isActive,
-          isClosable: state.isClosable,
-          isMaximizable: state.isMaximizable,
-          isMinimizable: state.isMinimizable,
-          isRestorable: state.isRestorable,
+          isActive: state.active,
+          isClosable: state.closable,
+          isMaximizable: state.maximizable,
+          isMinimizable: state.minimizable,
+          isRestorable: state.restorable,
           onClose: (_) => onClose(),
           onMaximize: (_) => onMaximize(),
           onMinimize: (_) => onMinimize(),
@@ -103,7 +103,7 @@ class YaruDialogTitleBar extends YaruWindowTitleBar {
 class _YaruDialogTitleBarState extends _YaruWindowTitleBarState {
   @override
   YaruWindowState get defaultState =>
-      const YaruWindowState(isMaximizable: false, isMinimizable: false);
+      const YaruWindowState(maximizable: false, minimizable: false);
 
   @override
   void onClose() => Navigator.of(context).maybePop();
