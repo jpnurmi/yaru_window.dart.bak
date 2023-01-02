@@ -44,7 +44,12 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       }
       result(nil)
     case "geometry":
-      result(self.getWindowGeometry(window: window))
+      if (args.count == 2) {
+        self.setWindowGeometry(window, geometry: args[1] as! NSDictionary)
+        result(nil)
+      } else {
+        result(self.getWindowGeometry(window))
+      }
     case "hide":
       window.orderOut(nil)
       result(nil)
@@ -76,13 +81,19 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       window.makeKeyAndOrderFront(nil)
       result(nil)
     case "state":
-      result(self.getWindowState(window: window))
-    case "setGeometry":
-      self.setWindowGeometry(window: window, geometry: args[1] as! NSDictionary)
-      result(nil)
-    case "setState":
-      self.setWindowState(window: window, state: args[1] as! NSDictionary)
-      result(nil)
+      if (args.count == 2) {
+        self.setWindowState(window, state: args[1] as! NSDictionary)
+        result(nil)
+      } else {
+        result(self.getWindowState(window))
+      }
+    case "style":
+      if (args.count == 2) {
+        self.setWindowStyle(window, style: args[1] as! NSDictionary)
+        result(nil)
+      } else {
+        result(self.getWindowStyle(window))
+      }
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -104,7 +115,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     return window
   }
 
-  private func getWindowGeometry(window: NSWindow) -> NSDictionary {
+  private func getWindowGeometry(_ window: NSWindow) -> NSDictionary {
     return [
       "id": 0, // TODO
       "type": "geometry",
@@ -119,7 +130,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     ]
   }
 
-  private func setWindowGeometry(window: NSWindow, geometry: NSDictionary) {
+  private func setWindowGeometry(_ window: NSWindow, geometry: NSDictionary) {
     var frame = window.frame
     if let x = geometry["x"] as? Int {
       frame.origin.x = CGFloat(x)
@@ -154,7 +165,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     window.maxSize = maxSize
   }
 
-  private func getWindowState(window: NSWindow) -> NSDictionary {
+  private func getWindowState(_ window: NSWindow) -> NSDictionary {
     let isActive = window.isKeyWindow
     let isClosable = window.styleMask.contains(.closable)
     let isFullscreen = window.styleMask.contains(.fullScreen)
@@ -179,14 +190,14 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     ]
   }
 
-  private func setWindowState(window: NSWindow, state: NSDictionary) {
+  private func setWindowState(_ window: NSWindow, state: NSDictionary) {
     if let closable = state["closable"] as? Bool {
       if (closable) {
         window.styleMask.insert(.closable)
       } else {
         window.styleMask.remove(.closable)
       }
-      self.sendWindowState(window: window)
+      self.sendWindowState(window)
     }
     if let fullscreen = state["fullscreen"] as? Bool {
       if (window.styleMask.contains(.fullScreen) != fullscreen) {
@@ -195,7 +206,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     }
     if let maximizable = state["maximizable"] as? Bool {
       window.standardWindowButton(.zoomButton)?.isEnabled = maximizable
-      self.sendWindowState(window: window)
+      self.sendWindowState(window)
     }
     if let maximized = state["maximized"] as? Bool {
       if (window.isZoomed != maximized) {
@@ -208,7 +219,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       } else {
         window.styleMask.remove(.miniaturizable)
       }
-      self.sendWindowState(window: window)
+      self.sendWindowState(window)
     }
     if let minimized = state["minimized"] as? Bool {
       if (minimized) {
@@ -226,51 +237,88 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     }
   }
 
-  private func sendWindowGeometry(window: NSWindow) {
-    sink?(self.getWindowGeometry(window: window))
+  private func getWindowStyle(_ window: NSWindow) -> NSDictionary {
+    return [
+      "id": 0, // TODO
+      "type": "style",
+      "background": window.backgroundColor.argb,
+      "opacity": window.alphaValue,
+    ]
   }
 
-  private func sendWindowState(window: NSWindow) {
-    sink?(self.getWindowState(window: window))
+  private func setWindowStyle(_ window: NSWindow, style: NSDictionary) {
+    if let background = style["background"] as? Int {
+      window.backgroundColor = NSColor(argb: background)
+    }
+    if let opacity = style["opacity"] as? CGFloat {
+      window.alphaValue = opacity
+    }
+  }
+
+  private func sendWindowGeometry(_ window: NSWindow) {
+    sink?(self.getWindowGeometry(window))
+  }
+
+  private func sendWindowState(_ window: NSWindow) {
+    sink?(self.getWindowState(window))
   }
 
   public func windowDidBecomeKey(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowDidResignKey(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowDidMiniaturize(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowDidDeminiaturize(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowDidEnterFullScreen(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowDidExitFullScreen(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowDidResize(_ notification: Notification) {
     let window = notification.object as! NSWindow
     if (window.isZoomed) {
-      self.sendWindowState(window: window)
+      self.sendWindowState(window)
     }
-    self.sendWindowGeometry(window: window)
+    self.sendWindowGeometry(window)
   }
 
   public func windowDidExpose(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
 
   public func windowWillClose(_ notification: Notification) {
-    self.sendWindowState(window: notification.object as! NSWindow)
+    self.sendWindowState(notification.object as! NSWindow)
   }
+}
+
+public extension NSColor {
+    convenience init(argb: Int) {
+        self.init(deviceRed: CGFloat((argb >> 16) & 0xff) / 255.0,
+                  green: CGFloat((argb >> 8) & 0xff) / 255.0,
+                  blue: CGFloat(argb & 0xff) / 255.0,
+                  alpha: CGFloat((argb >> 24) & 0xff) / 255.0)
+    }
+
+    var argb: Int {
+        let color = self.usingColorSpaceName(NSColorSpaceName.deviceRGB)!
+        var r: CGFloat = 0.0
+        var g: CGFloat = 0.0
+        var b: CGFloat = 0.0
+        var a: CGFloat = 0.0
+        color.getRed(&r, green: &g, blue: &b, alpha: &a)
+        return (Int(a * 255.0) << 24) | (Int(r * 255.0) << 16) | (Int(g * 255.0) << 8) | Int(b * 255.0)
+    }
 }
