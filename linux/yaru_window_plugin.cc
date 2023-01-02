@@ -110,34 +110,31 @@ static FlValue* get_window_state(GtkWindow* window) {
   GdkWindowState state = gdk_window_get_state(handle);
   GdkWindowTypeHint type = gdk_window_get_type_hint(handle);
 
-  gboolean is_active = gtk_window_is_active(window);
-  gboolean is_closable = gtk_window_get_deletable(window);
-  gboolean is_fullscreen = state & GDK_WINDOW_STATE_FULLSCREEN;
-  gboolean is_maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
-  gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
-  gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
-  gboolean is_restorable =
-      is_normal && (is_fullscreen || is_maximized || is_minimized);
-  gboolean is_visible = gtk_widget_is_visible(GTK_WIDGET(window));
+  gboolean active = gtk_window_is_active(window);
+  gboolean closable = gtk_window_get_deletable(window);
+  gboolean fullscreen = state & GDK_WINDOW_STATE_FULLSCREEN;
+  gboolean maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
+  gboolean minimized = state & GDK_WINDOW_STATE_ICONIFIED;
+  gboolean normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
+  gboolean restorable = normal && (fullscreen || maximized || minimized);
+  const gchar* title = gtk_window_get_title(window);
+  gboolean visible = gtk_widget_is_visible(GTK_WIDGET(window));
 
   FlValue* result = fl_value_new_map();
   fl_value_set_string_take(result, "id", fl_value_new_int(0));  // TODO
   fl_value_set_string_take(result, "type", fl_value_new_string("state"));
-  fl_value_set_string_take(result, "active", fl_value_new_bool(is_active));
-  fl_value_set_string_take(result, "closable", fl_value_new_bool(is_closable));
-  fl_value_set_string_take(result, "fullscreen",
-                           fl_value_new_bool(is_fullscreen));
+  fl_value_set_string_take(result, "active", fl_value_new_bool(active));
+  fl_value_set_string_take(result, "closable", fl_value_new_bool(closable));
+  fl_value_set_string_take(result, "fullscreen", fl_value_new_bool(fullscreen));
   fl_value_set_string_take(result, "maximizable",
-                           fl_value_new_bool(is_normal && !is_maximized));
-  fl_value_set_string_take(result, "maximized",
-                           fl_value_new_bool(is_maximized));
+                           fl_value_new_bool(normal && !maximized));
+  fl_value_set_string_take(result, "maximized", fl_value_new_bool(maximized));
   fl_value_set_string_take(result, "minimizable",
-                           fl_value_new_bool(is_normal && !is_minimized));
-  fl_value_set_string_take(result, "minimized",
-                           fl_value_new_bool(is_minimized));
-  fl_value_set_string_take(result, "restorable",
-                           fl_value_new_bool(is_restorable));
-  fl_value_set_string_take(result, "visible", fl_value_new_bool(is_visible));
+                           fl_value_new_bool(normal && !minimized));
+  fl_value_set_string_take(result, "minimized", fl_value_new_bool(minimized));
+  fl_value_set_string_take(result, "restorable", fl_value_new_bool(restorable));
+  fl_value_set_string_take(result, "title", fl_value_new_string(title));
+  fl_value_set_string_take(result, "visible", fl_value_new_bool(visible));
   return result;
 }
 
@@ -150,6 +147,7 @@ static void set_window_state(GtkWindow* window, FlValue* state) {
   FlValue* minimizable = fl_value_lookup_string(state, "minimizable");
   FlValue* minimized = fl_value_lookup_string(state, "minimized");
   FlValue* restorable = fl_value_lookup_string(state, "restorable");
+  FlValue* title = fl_value_lookup_string(state, "title");
   FlValue* visible = fl_value_lookup_string(state, "visible");
 
   if (fl_value_get_type(active) == FL_VALUE_TYPE_BOOL) {
@@ -201,6 +199,9 @@ static void set_window_state(GtkWindow* window, FlValue* state) {
     } else {
       gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
     }
+  }
+  if (fl_value_get_type(title) == FL_VALUE_TYPE_STRING) {
+    gtk_window_set_title(window, fl_value_get_string(title));
   }
   if (fl_value_get_type(visible) == FL_VALUE_TYPE_BOOL) {
     if (fl_value_get_bool(visible)) {
