@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'geometry.dart';
 import 'platform_interface.dart';
 import 'state.dart';
+import 'style.dart';
 
 class YaruWindow {
   const YaruWindow._(this._id);
@@ -32,6 +33,8 @@ class YaruWindow {
   Future<void> show() => _platform.show(_id);
   Future<YaruWindowState> state() =>
       _platform.state(_id).then(YaruWindowState.fromJson);
+  Future<YaruWindowStyle> style() =>
+      _platform.style(_id).then(YaruWindowStyle.fromJson);
 
   Stream<YaruWindowGeometry> geometries() async* {
     yield await geometry();
@@ -49,5 +52,9 @@ class YaruWindow {
 
   Future<void> setState(YaruWindowState state) {
     return _platform.setState(_id, state.toJson());
+  }
+
+  Future<void> setStyle(YaruWindowStyle style) {
+    return _platform.setStyle(_id, style.toJson());
   }
 }

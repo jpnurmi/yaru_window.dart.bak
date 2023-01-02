@@ -30,6 +30,7 @@ abstract class YaruWindowPlatform extends PlatformInterface {
   Future<void> restore(int id) => throw UnimplementedError('restore');
   Future<void> show(int id) => throw UnimplementedError('show');
   Future<JsonObject> state(int id) => throw UnimplementedError('state');
+  Future<JsonObject> style(int id) => throw UnimplementedError('style');
 
   Stream<JsonObject> geometries(int id) {
     throw UnimplementedError('geometryChanged');
@@ -45,5 +46,9 @@ abstract class YaruWindowPlatform extends PlatformInterface {
 
   Future<void> setState(int id, JsonObject state) {
     throw UnimplementedError('setState');
+  }
+
+  Future<void> setStyle(int id, JsonObject style) {
+    throw UnimplementedError('setStyle');
   }
 }

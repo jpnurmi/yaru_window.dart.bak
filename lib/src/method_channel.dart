@@ -51,6 +51,8 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   Future<void> show(int id) => _invokeMethod('show', [id]);
   @override
   Future<JsonObject> state(int id) => _invokeMapMethod('state', [id]);
+  @override
+  Future<JsonObject> style(int id) => _invokeMapMethod('style', [id]);
 
   @override
   Stream<JsonObject> geometries(int id) => _receiveEvents(id, 'geometry');
@@ -65,5 +67,10 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @override
   Future<void> setState(int id, JsonObject state) {
     return _invokeMethod('setState', [id, state]);
+  }
+
+  @override
+  Future<void> setStyle(int id, JsonObject style) {
+    return _invokeMethod('setStyle', [id, style]);
   }
 }
