@@ -4,7 +4,7 @@ import FlutterMacOS
 public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, FlutterStreamHandler {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "yaru_window", binaryMessenger: registrar.messenger)
-    let events = FlutterEventChannel(name: "yaru_window/state", binaryMessenger: registrar.messenger)
+    let events = FlutterEventChannel(name: "yaru_window/events", binaryMessenger: registrar.messenger)
 
     let plugin = YaruWindowPlugin(registrar: registrar, channel: channel, events: events)
     registrar.addMethodCallDelegate(plugin, channel: channel)
@@ -43,6 +43,8 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
         window.toggleFullScreen(nil)
       }
       result(nil)
+    case "geometry":
+      result(self.getWindowGeometry(window: window))
     case "hide":
       window.orderOut(nil)
       result(nil)
@@ -75,6 +77,9 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       result(nil)
     case "state":
       result(self.getWindowState(window: window))
+    case "setGeometry":
+      self.setWindowGeometry(window: window, geometry: args[1] as! NSDictionary)
+      result(nil)
     case "setState":
       self.setWindowState(window: window, state: args[1] as! NSDictionary)
       result(nil)
@@ -99,6 +104,56 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     return window
   }
 
+  private func getWindowGeometry(window: NSWindow) -> NSDictionary {
+    return [
+      "id": 0, // TODO
+      "type": "geometry",
+      "x": window.frame.origin.x,
+      "y": window.frame.origin.y,
+      "width": window.frame.size.width,
+      "height": window.frame.size.height,
+      "maximumWidth": window.maxSize.width,
+      "maximumHeight": window.maxSize.height,
+      "minimumWidth": window.minSize.width,
+      "minimumHeight": window.minSize.height,
+    ]
+  }
+
+  private func setWindowGeometry(window: NSWindow, geometry: NSDictionary) {
+    var frame = window.frame
+    if let x = geometry["x"] as? Int {
+      frame.origin.x = CGFloat(x)
+    }
+    if let y = geometry["y"] as? Int {
+      frame.origin.y = CGFloat(y)
+    }
+    if let width = geometry["width"] as? Int {
+      frame.size.width = CGFloat(width)
+    }
+    if let height = geometry["height"] as? Int {
+      frame.size.height = CGFloat(height)
+    }
+    window.setFrame(frame, display: true)
+
+    var minSize = window.minSize
+    if let minimumWidth = geometry["minimumWidth"] as? Int {
+      minSize.width = CGFloat(minimumWidth)
+    }
+    if let minimumHeight = geometry["minimumHeight"] as? Int {
+      minSize.height = CGFloat(minimumHeight)
+    }
+    window.minSize = minSize
+
+    var maxSize = window.maxSize
+    if let maximumWidth = geometry["maximumWidth"] as? Int {
+      maxSize.width = CGFloat(maximumWidth)
+    }
+    if let maximumHeight = geometry["maximumHeight"] as? Int {
+      maxSize.height = CGFloat(maximumHeight)
+    }
+    window.maxSize = maxSize
+  }
+
   private func getWindowState(window: NSWindow) -> NSDictionary {
     let isActive = window.isKeyWindow
     let isClosable = window.styleMask.contains(.closable)
@@ -111,6 +166,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     let isVisible = window.isVisible
     return [
       "id": 0, // TODO
+      "type": "state",
       "active": isActive,
       "closable": isClosable,
       "fullscreen": isFullscreen,
@@ -121,10 +177,6 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       "restorable": isRestorable,
       "visible": isVisible,
     ]
-  }
-
-  private func sendWindowState(window: NSWindow) {
-    sink?(self.getWindowState(window: window))
   }
 
   private func setWindowState(window: NSWindow, state: NSDictionary) {
@@ -174,6 +226,14 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     }
   }
 
+  private func sendWindowGeometry(window: NSWindow) {
+    sink?(self.getWindowGeometry(window: window))
+  }
+
+  private func sendWindowState(window: NSWindow) {
+    sink?(self.getWindowState(window: window))
+  }
+
   public func windowDidBecomeKey(_ notification: Notification) {
     self.sendWindowState(window: notification.object as! NSWindow)
   }
@@ -203,6 +263,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     if (window.isZoomed) {
       self.sendWindowState(window: window)
     }
+    self.sendWindowGeometry(window: window)
   }
 
   public func windowDidExpose(_ notification: Notification) {
