@@ -13,6 +13,15 @@ void YaruWindow::Init() {
 
 bool YaruWindow::IsActive() const { return ::GetForegroundWindow() == hwnd; }
 
+void YaruWindow::Activate(bool active) {
+  if (active) {
+    ::SetForegroundWindow(hwnd);
+  } else {
+    ::SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
+                   SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+  }
+}
+
 bool YaruWindow::IsClosable() const {
   HMENU menu = ::GetSystemMenu(hwnd, false);
   MENUITEMINFO info;
@@ -30,6 +39,10 @@ void YaruWindow::SetClosable(bool closable) {
 
 bool YaruWindow::IsVisible() const { return ::IsWindowVisible(hwnd); }
 
+void YaruWindow::SetVisible(bool visible) {
+  ::ShowWindow(hwnd, visible ? SW_SHOW : SW_HIDE);
+}
+
 void YaruWindow::Show() { ::ShowWindow(hwnd, SW_SHOW); }
 
 void YaruWindow::Hide() { ::ShowWindow(hwnd, SW_HIDE); }
@@ -38,15 +51,31 @@ bool YaruWindow::IsMinimized() const {
   return ::GetWindowLong(hwnd, GWL_STYLE) & WS_MINIMIZE;
 }
 
+void YaruWindow::Minimize(bool minimize) {
+  ::ShowWindow(hwnd, minimize ? SW_MINIMIZE : SW_SHOW);
+}
+
 bool YaruWindow::IsMinimizable() const {
   DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
   return (style & WS_MINIMIZEBOX) && !(style & WS_MINIMIZE);
 }
 
-void YaruWindow::Minimize() { ::ShowWindow(hwnd, SW_MINIMIZE); }
+void YaruWindow::SetMinimizable(bool minimizable) {
+  DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
+  if (minimizable) {
+    style |= WS_MINIMIZEBOX;
+  } else {
+    style &= ~WS_MINIMIZEBOX;
+  }
+  ::SetWindowLong(hwnd, GWL_STYLE, style);
+}
 
 bool YaruWindow::IsMaximized() const {
   return ::GetWindowLong(hwnd, GWL_STYLE) & WS_MAXIMIZE;
+}
+
+void YaruWindow::Maximize(bool maximize) {
+  ::ShowWindow(hwnd, maximize ? SW_MAXIMIZE : SW_SHOW);
 }
 
 bool YaruWindow::IsMaximizable() const {
@@ -54,7 +83,15 @@ bool YaruWindow::IsMaximizable() const {
   return (style & WS_MAXIMIZEBOX) && !(style & WS_MAXIMIZE);
 }
 
-void YaruWindow::Maximize() { ::ShowWindow(hwnd, SW_MAXIMIZE); }
+void YaruWindow::SetMaximizable(bool maximizable) {
+  DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
+  if (maximizable) {
+    style |= WS_MAXIMIZEBOX;
+  } else {
+    style &= ~WS_MAXIMIZEBOX;
+  }
+  ::SetWindowLong(hwnd, GWL_STYLE, style);
+}
 
 bool YaruWindow::IsFullscreen() const {
   return (::GetWindowLong(hwnd, GWL_STYLE) & WS_OVERLAPPEDWINDOW) == 0;
@@ -107,3 +144,62 @@ void YaruWindow::Move() {
 void YaruWindow::Close() { ::SendMessage(hwnd, WM_CLOSE, 0, 0); }
 
 void YaruWindow::Destroy() { ::DestroyWindow(hwnd); }
+
+std::map<FlValue, FlValue> YaruWindow::GetState() const {
+  return {
+      {"id", 0},  // TODO
+      {"active", IsActive()},
+      {"closable", IsClosable()},
+      {"fullscreen", IsFullscreen()},
+      {"maximizable", IsMaximizable()},
+      {"maximized", IsMaximized()},
+      {"minimizable", IsMinimizable()},
+      {"minimized", IsMinimized()},
+      {"restorable", IsRestorable()},
+      {"visible", IsVisible()},
+  };
+}
+
+void YaruWindow::SetState(const std::map<FlValue, FlValue>& state) {
+  FlValue active = state.at(FlValue("active"));
+  if (std::get_if<bool>(&active)) {
+    Activate(std::get<bool>(active));
+  }
+
+  FlValue closable = state.at(FlValue("closable"));
+  if (std::get_if<bool>(&closable)) {
+    SetClosable(std::get<bool>(closable));
+  }
+
+  FlValue fullscreen = state.at(FlValue("fullscreen"));
+  if (std::get_if<bool>(&fullscreen)) {
+    SetFullscreen(std::get<bool>(fullscreen));
+  }
+
+  FlValue maximizable = state.at(FlValue("maximizable"));
+  if (std::get_if<bool>(&maximizable)) {
+    SetMaximizable(std::get<bool>(maximizable));
+  }
+
+  FlValue maximized = state.at(FlValue("maximized"));
+  if (std::get_if<bool>(&maximized)) {
+    Maximize(std::get<bool>(maximized));
+  }
+
+  FlValue minimizable = state.at(FlValue("minimizable"));
+  if (std::get_if<bool>(&minimizable)) {
+    SetMinimizable(std::get<bool>(minimizable));
+  }
+
+  FlValue minimized = state.at(FlValue("minimized"));
+  if (std::get_if<bool>(&minimized)) {
+    Minimize(std::get<bool>(minimized));
+  }
+
+  FlValue visible = state.at(FlValue("visible"));
+  if (std::get_if<bool>(&visible)) {
+    SetVisible(std::get<bool>(visible));
+  }
+
+  ::SendMessage(hwnd, WM_USER, 0, 0);
+}

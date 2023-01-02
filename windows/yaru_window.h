@@ -1,7 +1,7 @@
 #ifndef _YARU_WINDOW_H_
 #define _YARU_WINDOW_H_
 
-#include <windows.h>
+#include "yaru_flutter.h"
 
 enum Brightness { Light, Dark };
 
@@ -12,21 +12,27 @@ class YaruWindow {
   void Init();
 
   bool IsActive() const;
+  void Activate(bool active = true);
 
   bool IsClosable() const;
   void SetClosable(bool closable = true);
 
   bool IsVisible() const;
+  void SetVisible(bool visible = true);
   void Show();
   void Hide();
 
   bool IsMinimized() const;
+  void Minimize(bool minimize = true);
+
   bool IsMinimizable() const;
-  void Minimize();
+  void SetMinimizable(bool minimizable);
 
   bool IsMaximized() const;
+  void Maximize(bool maximize = true);
+
   bool IsMaximizable() const;
-  void Maximize();
+  void SetMaximizable(bool maximizable);
 
   bool IsFullscreen() const;
   void SetFullscreen(bool fullscreen);
@@ -39,6 +45,9 @@ class YaruWindow {
 
   void Close();
   void Destroy();
+
+  std::map<FlValue, FlValue> GetState() const;
+  void SetState(const std::map<FlValue, FlValue>& state);
 
  private:
   HWND hwnd = nullptr;

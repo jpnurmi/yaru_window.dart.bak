@@ -1,28 +1,9 @@
 #include "include/yaru_window/yaru_window_plugin.h"
 
-#include <flutter/event_channel.h>
-#include <flutter/method_channel.h>
-#include <flutter/plugin_registrar_windows.h>
-#include <flutter/standard_method_codec.h>
-#include <windows.h>
-
+#include "yaru_flutter.h"
 #include "yaru_window.h"
 
 namespace {
-typedef flutter::EncodableValue FlValue;
-typedef flutter::EventChannel<FlValue> FlEventChannel;
-typedef flutter::EventSink<FlValue> FlEventSink;
-typedef flutter::MethodCall<FlValue> FlMethodCall;
-typedef flutter::MethodResult<FlValue> FlMethodResult;
-typedef flutter::MethodChannel<FlValue> FlMethodChannel;
-typedef flutter::Plugin FlPlugin;
-typedef flutter::PluginRegistrarManager FlPluginRegistrarManager;
-typedef flutter::PluginRegistrarWindows FlPluginRegistrar;
-typedef flutter::StandardMethodCodec FlStandardMethodCodec;
-typedef flutter::StreamHandler<FlValue> FlStreamHandler;
-typedef flutter::StreamHandlerError<FlValue> FlStreamHandlerError;
-typedef flutter::FlutterView FlView;
-
 YaruWindow GetYaruWindow(FlView *view) {
   HWND hwnd = ::GetAncestor(view->GetNativeWindow(), GA_ROOT);
   return YaruWindow(hwnd);
@@ -42,19 +23,7 @@ class YaruWindowStateHandler : public FlStreamHandler {
   }
 
  protected:
-  void SendWindowState(YaruWindow window) {
-    const std::map<FlValue, FlValue> status = {
-        {"active", window.IsActive()},
-        {"closable", window.IsClosable()},
-        {"fullscreen", window.IsFullscreen()},
-        {"maximizable", window.IsMaximizable()},
-        {"maximized", window.IsMaximized()},
-        {"minimizable", window.IsMinimizable()},
-        {"minimized", window.IsMinimized()},
-        {"restorable", window.IsRestorable()},
-    };
-    _sink->Success(status);
-  }
+  void SendWindowState(YaruWindow window) { _sink->Success(window.GetState()); }
 
   std::unique_ptr<FlStreamHandlerError> OnListenInternal(
       const FlValue *arguments,
@@ -94,6 +63,17 @@ class YaruWindowStateHandler : public FlStreamHandler {
             wparam == SIZE_RESTORED) {
           SendWindowState(window);
         }
+        break;
+      case WM_SHOWWINDOW:
+        SendWindowState(window);
+        break;
+      case WM_STYLECHANGED:
+        if (wparam == GWL_STYLE) {
+          SendWindowState(window);
+        }
+        break;
+      case WM_USER:
+        SendWindowState(window);
         break;
       default:
         break;
@@ -142,7 +122,9 @@ YaruWindowPlugin::YaruWindowPlugin(FlPluginRegistrar *registrar)
 void YaruWindowPlugin::HandleMethodCall(
     const FlMethodCall &method_call, std::unique_ptr<FlMethodResult> result) {
   const std::string method = method_call.method_name();
-  int id = std::get<int>(*method_call.arguments());
+  const std::vector<FlValue> args =
+      std::get<std::vector<FlValue>>(*method_call.arguments());
+  int id = std::get<int>(args[0]);
   YaruWindow window = GetWindow(id);
   if (method.compare("close") == 0) {
     window.Close();
@@ -164,6 +146,11 @@ void YaruWindowPlugin::HandleMethodCall(
     window.Restore();
   } else if (method.compare("show") == 0) {
     window.Show();
+  } else if (method.compare("state") == 0) {
+    result->Success(window.GetState());
+    return;
+  } else if (method.compare("setState") == 0) {
+    window.SetState(std::get<std::map<FlValue, FlValue>>(args[1]));
   } else {
     result->NotImplemented();
     return;
