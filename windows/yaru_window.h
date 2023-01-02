@@ -46,6 +46,9 @@ class YaruWindow {
   void Close();
   void Destroy();
 
+  std::map<FlValue, FlValue> GetGeometry() const;
+  void SetGeometry(const std::map<FlValue, FlValue>& geometry);
+
   std::map<FlValue, FlValue> GetState() const;
   void SetState(const std::map<FlValue, FlValue>& state);
 

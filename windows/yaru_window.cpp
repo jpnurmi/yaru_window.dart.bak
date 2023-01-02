@@ -145,9 +145,53 @@ void YaruWindow::Close() { ::SendMessage(hwnd, WM_CLOSE, 0, 0); }
 
 void YaruWindow::Destroy() { ::DestroyWindow(hwnd); }
 
+std::map<FlValue, FlValue> YaruWindow::GetGeometry() const {
+  RECT rect;
+  ::GetWindowRect(hwnd, &rect);
+  return {
+      {"id", 0},  // TODO
+      {"type", "geometry"},
+      {"x", rect.left},
+      {"y", rect.top},
+      {"width", rect.right - rect.left},
+      {"height", rect.bottom - rect.top},
+  };
+}
+
+void YaruWindow::SetGeometry(const std::map<FlValue, FlValue>& geometry) {
+  FlValue x = geometry.at(FlValue("x"));
+  FlValue y = geometry.at(FlValue("y"));
+  FlValue width = geometry.at(FlValue("width"));
+  FlValue height = geometry.at(FlValue("height"));
+
+  RECT rect;
+  ::GetWindowRect(hwnd, &rect);
+
+  UINT flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER;
+  if (std::get_if<int>(&x)) {
+    flags &= ~SWP_NOMOVE;
+    rect.left = std::get<int>(x);
+  }
+  if (std::get_if<int>(&y)) {
+    flags &= ~SWP_NOMOVE;
+    rect.top = std::get<int>(y);
+  }
+  if (std::get_if<int>(&width)) {
+    flags &= ~SWP_NOSIZE;
+    rect.right = rect.left + std::get<int>(width);
+  }
+  if (std::get_if<int>(&height)) {
+    flags &= ~SWP_NOSIZE;
+    rect.bottom = rect.top + std::get<int>(height);
+  }
+  ::SetWindowPos(hwnd, nullptr, rect.left, rect.top, rect.right - rect.left,
+                 rect.bottom - rect.top, flags);
+}
+
 std::map<FlValue, FlValue> YaruWindow::GetState() const {
   return {
       {"id", 0},  // TODO
+      {"type", "state"},
       {"active", IsActive()},
       {"closable", IsClosable()},
       {"fullscreen", IsFullscreen()},

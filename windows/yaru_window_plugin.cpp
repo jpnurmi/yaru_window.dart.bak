@@ -9,29 +9,39 @@ YaruWindow GetYaruWindow(FlView *view) {
   return YaruWindow(hwnd);
 }
 
-class YaruWindowStateHandler : public FlStreamHandler {
+class YaruWindowEventHandler : public FlStreamHandler {
  public:
-  YaruWindowStateHandler(FlPluginRegistrar *registrar) : _registrar(registrar) {
+  YaruWindowEventHandler(FlPluginRegistrar *registrar) : _registrar(registrar) {
     _delegate = _registrar->RegisterTopLevelWindowProcDelegate(
         [this](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
           return ProcessMsg(hwnd, message, wparam, lparam);
         });
   }
 
-  ~YaruWindowStateHandler() {
+  ~YaruWindowEventHandler() {
     _registrar->UnregisterTopLevelWindowProcDelegate(_delegate);
   }
 
  protected:
-  void SendWindowState(YaruWindow window) { _sink->Success(window.GetState()); }
+  void SendWindowGeometry(YaruWindow window) {
+    if (_sink) {
+      _sink->Success(window.GetGeometry());
+    }
+  }
+
+  void SendWindowState(YaruWindow window) {
+    if (_sink) {
+      _sink->Success(window.GetState());
+    }
+  }
 
   std::unique_ptr<FlStreamHandlerError> OnListenInternal(
       const FlValue *arguments,
       std::unique_ptr<FlEventSink> &&events) override {
     _sink = std::move(events);
+    // TODO: find a better place for initialization
     auto window = GetYaruWindow(_registrar->GetView());
     window.Init();
-    SendWindowState(window);
     return nullptr;
   }
 
@@ -58,11 +68,15 @@ class YaruWindowStateHandler : public FlStreamHandler {
           return false;
         }
         break;
+      case WM_MOVE:
+        SendWindowGeometry(window);
+        break;
       case WM_SIZE:
         if (wparam == SIZE_MAXIMIZED || wparam == SIZE_MINIMIZED ||
             wparam == SIZE_RESTORED) {
           SendWindowState(window);
         }
+        SendWindowGeometry(window);
         break;
       case WM_SHOWWINDOW:
         SendWindowState(window);
@@ -113,10 +127,10 @@ YaruWindowPlugin::YaruWindowPlugin(FlPluginRegistrar *registrar)
   });
 
   _event_channel = std::make_unique<FlEventChannel>(
-      registrar->messenger(), "yaru_window/state",
+      registrar->messenger(), "yaru_window/events",
       &FlStandardMethodCodec::GetInstance());
   _event_channel->SetStreamHandler(
-      std::make_unique<YaruWindowStateHandler>(registrar));
+      std::make_unique<YaruWindowEventHandler>(registrar));
 }
 
 void YaruWindowPlugin::HandleMethodCall(
@@ -132,6 +146,9 @@ void YaruWindowPlugin::HandleMethodCall(
     window.Destroy();
   } else if (method.compare("fullscreen") == 0) {
     window.SetFullscreen(true);
+  } else if (method.compare("geometry") == 0) {
+    result->Success(window.GetGeometry());
+    return;
   } else if (method.compare("hide") == 0) {
     window.Hide();
   } else if (method.compare("maximize") == 0) {
@@ -151,6 +168,8 @@ void YaruWindowPlugin::HandleMethodCall(
     return;
   } else if (method.compare("setState") == 0) {
     window.SetState(std::get<std::map<FlValue, FlValue>>(args[1]));
+  } else if (method.compare("setGeometry") == 0) {
+    window.SetGeometry(std::get<std::map<FlValue, FlValue>>(args[1]));
   } else {
     result->NotImplemented();
     return;
