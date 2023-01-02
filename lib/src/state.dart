@@ -11,6 +11,7 @@ class YaruWindowState {
     this.minimizable,
     this.minimized,
     this.restorable,
+    this.title,
     this.visible,
   });
 
@@ -24,6 +25,7 @@ class YaruWindowState {
       minimizable: json['minimizable'],
       minimized: json['minimized'],
       restorable: json['restorable'],
+      title: json['title'],
       visible: json['visible'],
     );
   }
@@ -36,6 +38,7 @@ class YaruWindowState {
   final bool? minimizable;
   final bool? minimized;
   final bool? restorable;
+  final String? title;
   final bool? visible;
 
   Map<String, dynamic> toJson() {
@@ -48,6 +51,7 @@ class YaruWindowState {
       'minimizable': minimizable,
       'minimized': minimized,
       'restorable': restorable,
+      'title': title,
       'visible': visible,
     };
   }
@@ -61,6 +65,7 @@ class YaruWindowState {
     bool? minimizable,
     bool? minimized,
     bool? restorable,
+    String? title,
     bool? visible,
   }) {
     return YaruWindowState(
@@ -72,6 +77,7 @@ class YaruWindowState {
       minimizable: minimizable ?? this.minimizable,
       minimized: minimized ?? this.minimized,
       restorable: restorable ?? this.restorable,
+      title: title ?? this.title,
       visible: visible ?? this.visible,
     );
   }
@@ -86,6 +92,7 @@ class YaruWindowState {
       minimizable: other?.minimizable,
       minimized: other?.minimized,
       restorable: other?.restorable,
+      title: other?.title,
       visible: other?.visible,
     );
   }
@@ -102,6 +109,7 @@ class YaruWindowState {
         other.minimizable == minimizable &&
         other.minimized == minimized &&
         other.restorable == restorable &&
+        other.title == title &&
         other.visible == visible;
   }
 
@@ -116,12 +124,13 @@ class YaruWindowState {
       minimizable,
       minimized,
       restorable,
+      title,
       visible,
     );
   }
 
   @override
   String toString() {
-    return 'YaruWindowState(active: $active, closable: $closable, fullscreen: $fullscreen, maximizable: $maximizable, maximized: $maximized, minimizable: $minimizable, minimized: $minimized, restorable: $restorable, visible: $visible)';
+    return 'YaruWindowState(active: $active, closable: $closable, fullscreen: $fullscreen, maximizable: $maximizable, maximized: $maximized, minimizable: $minimizable, minimized: $minimized, restorable: $restorable, title: $title, visible: $visible)';
   }
 }
