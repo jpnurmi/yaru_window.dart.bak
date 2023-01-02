@@ -26,4 +26,6 @@ abstract class YaruWindowPlatform extends PlatformInterface {
   Future<void> restore(int id) => throw UnimplementedError('restore');
   Future<void> show(int id) => throw UnimplementedError('show');
   Stream<Map> state(int id) => throw UnimplementedError('state');
+  Future<void> setState(int id, Map state) =>
+      throw UnimplementedError('setState');
 }

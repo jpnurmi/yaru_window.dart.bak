@@ -9,33 +9,37 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @visibleForTesting
   final events = const EventChannel('yaru_window/state');
   @override
-  Future<void> close(int id) => channel.invokeMethod('close', id);
+  Future<void> close(int id) => channel.invokeMethod('close', [id]);
   @override
-  Future<void> destroy(int id) => channel.invokeMethod('destroy', id);
+  Future<void> destroy(int id) => channel.invokeMethod('destroy', [id]);
   @override
-  Future<void> fullscreen(int id) => channel.invokeMethod('fullscreen', id);
+  Future<void> fullscreen(int id) => channel.invokeMethod('fullscreen', [id]);
   @override
-  Future<void> hide(int id) => channel.invokeMethod('hide', id);
+  Future<void> hide(int id) => channel.invokeMethod('hide', [id]);
   @override
-  Future<void> init(int id) => channel.invokeMethod('init', id);
+  Future<void> init(int id) => channel.invokeMethod('init', [id]);
   @override
-  Future<void> maximize(int id) => channel.invokeMethod('maximize', id);
+  Future<void> maximize(int id) => channel.invokeMethod('maximize', [id]);
   @override
-  Future<void> menu(int id) => channel.invokeMethod('menu', id);
+  Future<void> menu(int id) => channel.invokeMethod('menu', [id]);
   @override
-  Future<void> minimize(int id) => channel.invokeMethod('minimize', id);
+  Future<void> minimize(int id) => channel.invokeMethod('minimize', [id]);
   @override
-  Future<void> move(int id) => channel.invokeMethod('move', id);
+  Future<void> move(int id) => channel.invokeMethod('move', [id]);
   @override
-  Future<void> restore(int id) => channel.invokeMethod('restore', id);
+  Future<void> restore(int id) => channel.invokeMethod('restore', [id]);
   @override
-  Future<void> show(int id) => channel.invokeMethod('show', id);
+  Future<void> show(int id) => channel.invokeMethod('show', [id]);
   @override
   Stream<Map> state(int id) async* {
-    final state = await channel.invokeMapMethod('state', id);
+    final state = await channel.invokeMapMethod('state', [id]);
     if (state != null) yield state;
     yield* _stateChanges.where((event) => event['id'] == id);
   }
+
+  @override
+  Future<void> setState(int id, Map state) =>
+      channel.invokeMethod('setState', [id, state]);
 
   Stream<Map>? __stateChanges;
   Stream<Map> get _stateChanges =>

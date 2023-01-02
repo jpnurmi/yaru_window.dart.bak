@@ -28,4 +28,6 @@ class YaruWindow {
   Stream<YaruWindowState> state() => YaruWindowPlatform.instance
       .state(_id)
       .map((json) => YaruWindowState.fromJson(json.cast<String, dynamic>()));
+  Future<void> setState(YaruWindowState state) =>
+      YaruWindowPlatform.instance.setState(_id, state.toJson());
 }

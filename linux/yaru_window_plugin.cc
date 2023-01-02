@@ -30,7 +30,8 @@ static FlValue* get_window_state(GtkWindow* window) {
   gboolean is_maximized = state & GDK_WINDOW_STATE_MAXIMIZED;
   gboolean is_minimized = state & GDK_WINDOW_STATE_ICONIFIED;
   gboolean is_normal = type == GDK_WINDOW_TYPE_HINT_NORMAL;
-  gboolean is_restorable = is_fullscreen || is_maximized || is_minimized;
+  gboolean is_restorable =
+      is_normal && (is_fullscreen || is_maximized || is_minimized);
   gboolean is_visible = gtk_widget_is_visible(GTK_WIDGET(window));
 
   FlValue* result = fl_value_new_map();
@@ -51,6 +52,76 @@ static FlValue* get_window_state(GtkWindow* window) {
                            fl_value_new_bool(is_restorable));
   fl_value_set_string_take(result, "visible", fl_value_new_bool(is_visible));
   return result;
+}
+
+static void set_window_state(GtkWindow* window, FlValue* state) {
+  FlValue* active = fl_value_lookup_string(state, "active");
+  FlValue* closable = fl_value_lookup_string(state, "closable");
+  FlValue* fullscreen = fl_value_lookup_string(state, "fullscreen");
+  FlValue* maximizable = fl_value_lookup_string(state, "maximizable");
+  FlValue* maximized = fl_value_lookup_string(state, "maximized");
+  FlValue* minimizable = fl_value_lookup_string(state, "minimizable");
+  FlValue* minimized = fl_value_lookup_string(state, "minimized");
+  FlValue* restorable = fl_value_lookup_string(state, "restorable");
+  FlValue* visible = fl_value_lookup_string(state, "visible");
+
+  if (fl_value_get_type(active) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(active)) {
+      gtk_window_present(window);
+    }
+  }
+  if (fl_value_get_type(closable) == FL_VALUE_TYPE_BOOL) {
+    gtk_window_set_deletable(window, fl_value_get_bool(closable));
+  }
+  if (fl_value_get_type(fullscreen) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(fullscreen)) {
+      gtk_window_fullscreen(window);
+    } else {
+      gtk_window_unfullscreen(window);
+    }
+  }
+  if (fl_value_get_type(maximizable) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(maximizable)) {
+      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_NORMAL);
+    } else {
+      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
+    }
+  }
+  if (fl_value_get_type(maximized) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(maximized)) {
+      gtk_window_maximize(window);
+    } else {
+      gtk_window_unmaximize(window);
+    }
+  }
+  if (fl_value_get_type(minimizable) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(minimizable)) {
+      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_NORMAL);
+    } else {
+      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
+    }
+  }
+  if (fl_value_get_type(minimized) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(minimized)) {
+      gtk_window_iconify(window);
+    } else {
+      gtk_window_deiconify(window);
+    }
+  }
+  if (fl_value_get_type(restorable) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(restorable)) {
+      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_NORMAL);
+    } else {
+      gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
+    }
+  }
+  if (fl_value_get_type(visible) == FL_VALUE_TYPE_BOOL) {
+    if (fl_value_get_bool(visible)) {
+      gtk_widget_show(GTK_WIDGET(window));
+    } else {
+      gtk_widget_hide(GTK_WIDGET(window));
+    }
+  }
 }
 
 static GdkPoint get_cursor_position(GtkWindow* window) {
@@ -116,15 +187,27 @@ static gboolean window_state_cb(GtkWidget* window, GdkEventWindowState* event,
   return false;
 }
 
+static void window_property_cb(GtkWindow* window, GParamSpec*,
+                               gpointer user_data) {
+  FlEventChannel* channel = FL_EVENT_CHANNEL(user_data);
+  g_autoptr(FlValue) state = get_window_state(GTK_WINDOW(window));
+  fl_event_channel_send(channel, state, nullptr, nullptr);
+}
+
 static void yaru_window_plugin_listen_window(YaruWindowPlugin* self,
                                              gint window_id) {
   GtkWindow* window = yaru_window_plugin_get_window(self, window_id);
   if (!g_hash_table_contains(self->signals, GINT_TO_POINTER(window_id))) {
-    gint handler =
-        g_signal_connect(window, "window-state-event",
-                         G_CALLBACK(window_state_cb), self->event_channel);
-    g_hash_table_insert(self->signals, GINT_TO_POINTER(window_id),
-                        GINT_TO_POINTER(handler));
+    g_signal_connect_object(window, "window-state-event",
+                            G_CALLBACK(window_state_cb), self->event_channel,
+                            G_CONNECT_DEFAULT);
+    g_signal_connect_object(G_OBJECT(window), "notify::deletable",
+                            G_CALLBACK(window_property_cb), self->event_channel,
+                            G_CONNECT_DEFAULT);
+    g_signal_connect_object(G_OBJECT(window), "notify::type-hint",
+                            G_CALLBACK(window_property_cb), self->event_channel,
+                            G_CONNECT_DEFAULT);
+    g_hash_table_insert(self->signals, GINT_TO_POINTER(window_id), 0);
   }
 }
 
@@ -133,7 +216,8 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
   g_autoptr(FlMethodResponse) response = nullptr;
 
   const gchar* method = fl_method_call_get_name(method_call);
-  gint window_id = fl_value_get_int(fl_method_call_get_args(method_call));
+  FlValue* args = fl_method_call_get_args(method_call);
+  gint window_id = fl_value_get_int(fl_value_get_list_value(args, 0));
   GtkWindow* window = yaru_window_plugin_get_window(self, window_id);
 
   if (strcmp(method, "close") == 0) {
@@ -160,6 +244,10 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     g_autoptr(FlValue) state = get_window_state(window);
     yaru_window_plugin_listen_window(self, window_id);
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(state));
+  } else if (strcmp(method, "setState") == 0) {
+    FlValue* state = fl_value_get_list_value(args, 1);
+    set_window_state(window, state);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }

@@ -33,42 +33,58 @@ class MyApp extends StatelessWidget {
                   YaruCheckboxListTile(
                     title: const Text('Closable'),
                     value: state?.isClosable == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isClosable: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Fullscreen'),
                     value: state?.isFullscreen == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isFullscreen: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Maximizable'),
                     value: state?.isMaximizable == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isMaximizable: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Maximized'),
                     value: state?.isMaximized == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isMaximized: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Minimizable'),
                     value: state?.isMinimizable == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isMinimizable: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Minimized'),
                     value: state?.isMinimized == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isMinimized: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Restorable'),
                     value: state?.isRestorable == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isRestorable: value),
+                    ),
                   ),
                   YaruCheckboxListTile(
                     title: const Text('Visible'),
                     value: state?.isVisible == true,
-                    onChanged: null,
+                    onChanged: (value) => window.setState(
+                      YaruWindowState(isVisible: value),
+                    ),
                   ),
                 ],
               );
