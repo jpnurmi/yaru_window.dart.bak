@@ -49,10 +49,10 @@ class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
       : const YaruWindowState();
 
   void onClose() => YaruWindow.of(context).close();
+  void onDrag() => YaruWindow.of(context).drag();
   void onMaximize() => YaruWindow.of(context).maximize();
   void onMenu() => YaruWindow.of(context).menu();
   void onMinimize() => YaruWindow.of(context).minimize();
-  void onMove() => YaruWindow.of(context).move();
   void onRestore() => YaruWindow.of(context).restore();
 
   @override
@@ -75,9 +75,9 @@ class _YaruWindowTitleBarState extends State<YaruWindowTitleBar> {
           isMinimizable: state.minimizable,
           isRestorable: state.restorable,
           onClose: (_) => onClose(),
+          onMove: (_) => onDrag(),
           onMaximize: (_) => onMaximize(),
           onMinimize: (_) => onMinimize(),
-          onMove: (_) => onMove(),
           onRestore: (_) => onRestore(),
           onShowMenu: (_) => onMenu(),
         );

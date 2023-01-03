@@ -125,6 +125,11 @@ bool YaruWindow::IsRestorable() const {
 
 void YaruWindow::Restore() { ::ShowWindow(hwnd, SW_RESTORE); }
 
+void YaruWindow::Drag() {
+  ::ReleaseCapture();
+  ::SendMessage(hwnd, WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
+}
+
 void YaruWindow::Menu() {
   POINT cursor;
   ::GetCursorPos(&cursor);
@@ -134,11 +139,6 @@ void YaruWindow::Menu() {
   if (cmd) {
     ::PostMessage(hwnd, WM_SYSCOMMAND, cmd, 0);
   }
-}
-
-void YaruWindow::Move() {
-  ::ReleaseCapture();
-  ::SendMessage(hwnd, WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
 }
 
 void YaruWindow::Close() { ::SendMessage(hwnd, WM_CLOSE, 0, 0); }

@@ -21,6 +21,7 @@ class YaruWindow {
 
   Future<void> close() => _platform.close(_id);
   Future<void> destroy() => _platform.destroy(_id);
+  Future<void> drag() => _platform.drag(_id);
   Future<void> fullscreen() => _platform.fullscreen(_id);
   Future<YaruWindowGeometry> geometry() =>
       _platform.geometry(_id).then(YaruWindowGeometry.fromJson);
@@ -28,7 +29,6 @@ class YaruWindow {
   Future<void> maximize() => _platform.maximize(_id);
   Future<void> menu() => _platform.menu(_id);
   Future<void> minimize() => _platform.minimize(_id);
-  Future<void> move() => _platform.move(_id);
   Future<void> restore() => _platform.restore(_id);
   Future<void> show() => _platform.show(_id);
   Future<YaruWindowState> state() =>

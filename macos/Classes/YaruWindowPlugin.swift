@@ -38,6 +38,11 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     case "destroy":
       window.close()
       result(nil)
+    case "drag":
+      if (window.currentEvent != nil) {
+        window.performDrag(with: window.currentEvent!)
+      }
+      result(nil)
     case "fullscreen":
       if (!window.styleMask.contains(.fullScreen)) {
         window.toggleFullScreen(nil)
@@ -60,11 +65,6 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       result(false)
     case "minimize":
       window.miniaturize(nil)
-      result(nil)
-    case "move":
-      if (window.currentEvent != nil) {
-        window.performDrag(with: window.currentEvent!)
-      }
       result(nil)
     case "restore":
       if (window.styleMask.contains(.fullScreen)) {

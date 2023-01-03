@@ -30,6 +30,8 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @override
   Future<void> destroy(int id) => _invokeMethod('destroy', [id]);
   @override
+  Future<void> drag(int id) => _invokeMethod('drag', [id]);
+  @override
   Future<void> fullscreen(int id) => _invokeMethod('fullscreen', [id]);
   @override
   Future<JsonObject> geometry(int id) => _invokeMapMethod('geometry', [id]);
@@ -43,8 +45,6 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   Future<void> menu(int id) => _invokeMethod('menu', [id]);
   @override
   Future<void> minimize(int id) => _invokeMethod('minimize', [id]);
-  @override
-  Future<void> move(int id) => _invokeMethod('move', [id]);
   @override
   Future<void> restore(int id) => _invokeMethod('restore', [id]);
   @override

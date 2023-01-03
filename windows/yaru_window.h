@@ -40,8 +40,8 @@ class YaruWindow {
   bool IsRestorable() const;
   void Restore();
 
+  void Drag();
   void Menu();
-  void Move();
 
   void Close();
   void Destroy();

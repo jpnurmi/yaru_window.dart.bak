@@ -144,6 +144,8 @@ void YaruWindowPlugin::HandleMethodCall(
     window.Close();
   } else if (method.compare("destroy") == 0) {
     window.Destroy();
+  } else if (method.compare("drag") == 0) {
+    window.Drag();
   } else if (method.compare("fullscreen") == 0) {
     window.SetFullscreen(true);
   } else if (method.compare("geometry") == 0) {
@@ -157,8 +159,6 @@ void YaruWindowPlugin::HandleMethodCall(
     window.Menu();
   } else if (method.compare("minimize") == 0) {
     window.Minimize();
-  } else if (method.compare("move") == 0) {
-    window.Move();
   } else if (method.compare("restore") == 0) {
     window.Restore();
   } else if (method.compare("show") == 0) {

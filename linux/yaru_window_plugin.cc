@@ -38,7 +38,7 @@ static GdkPoint get_window_origin(GtkWindow* window) {
   return pos;
 }
 
-static void move_window(GtkWindow* window) {
+static void drag_window(GtkWindow* window) {
   GdkPoint cursor = get_cursor_position(window);
   gtk_window_begin_move_drag(window, GDK_BUTTON_PRIMARY, cursor.x, cursor.y,
                              GDK_CURRENT_TIME);
@@ -132,6 +132,8 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     gtk_window_close(window);
   } else if (strcmp(method, "destroy") == 0) {
     gtk_widget_destroy(GTK_WIDGET(window));
+  } else if (strcmp(method, "drag") == 0) {
+    drag_window(window);
   } else if (strcmp(method, "fullscreen") == 0) {
     gtk_window_fullscreen(window);
   } else if (strcmp(method, "geometry") == 0) {
@@ -150,8 +152,6 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     show_window_menu(window);
   } else if (strcmp(method, "minimize") == 0) {
     gtk_window_iconify(window);
-  } else if (strcmp(method, "move") == 0) {
-    move_window(window);
   } else if (strcmp(method, "restore") == 0) {
     restore_window(window);
   } else if (strcmp(method, "show") == 0) {
