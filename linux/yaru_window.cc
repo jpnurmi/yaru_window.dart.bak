@@ -1,5 +1,22 @@
 #include "yaru_window.h"
 
+static GdkPoint get_cursor_position(GtkWindow* window) {
+  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
+  GdkDisplay* display = gdk_window_get_display(handle);
+  GdkSeat* seat = gdk_display_get_default_seat(display);
+  GdkDevice* pointer = gdk_seat_get_pointer(seat);
+  GdkPoint pos;
+  gdk_device_get_position(pointer, nullptr, &pos.x, &pos.y);
+  return pos;
+}
+
+static GdkPoint get_window_origin(GtkWindow* window) {
+  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
+  GdkPoint pos;
+  gdk_window_get_origin(handle, &pos.x, &pos.y);
+  return pos;
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 static int get_window_background(GtkWindow* window) {
@@ -42,6 +59,83 @@ static void set_window_background(GtkWindow* window, int color) {
   if (error != nullptr) {
     g_warning("set_window_background: %s", error->message);
   }
+}
+
+// Returns true if the widget is GtkHeaderBar or HdyHeaderBar from libhandy.
+static gboolean is_header_bar(GtkWidget* widget) {
+  return widget != nullptr &&
+         (GTK_IS_HEADER_BAR(widget) ||
+          g_str_has_suffix(G_OBJECT_TYPE_NAME(widget), "HeaderBar"));
+}
+
+// Recursively searches for a Gtk/HdyHeaderBar in the widget tree.
+static GtkWidget* find_header_bar(GtkWidget* widget) {
+  if (is_header_bar(widget)) {
+    return widget;
+  }
+
+  if (GTK_IS_CONTAINER(widget)) {
+    g_autoptr(GList) children =
+        gtk_container_get_children(GTK_CONTAINER(widget));
+    for (GList* l = children; l != nullptr; l = l->next) {
+      GtkWidget* header_bar = find_header_bar(GTK_WIDGET(l->data));
+      if (header_bar != nullptr) {
+        return header_bar;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+// Hides the window's header bar which is typically a GtkHeaderBar used as
+// GtkWindow::titlebar, or a HdyHeaderBar as HdyWindow granchild.
+void yaru_window_init(GtkWindow* window) {
+  GtkWidget* titlebar = gtk_window_get_titlebar(window);
+  if (!is_header_bar(titlebar)) {
+    titlebar = find_header_bar(GTK_WIDGET(window));
+  }
+  if (titlebar != nullptr) {
+    gtk_widget_hide(titlebar);
+  }
+}
+
+void yaru_window_drag(GtkWindow* window) {
+  GdkPoint cursor = get_cursor_position(window);
+  gtk_window_begin_move_drag(window, GDK_BUTTON_PRIMARY, cursor.x, cursor.y,
+                             GDK_CURRENT_TIME);
+}
+
+void yaru_window_restore(GtkWindow* window) {
+  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
+  GdkWindowState state = gdk_window_get_state(handle);
+  if (state & GDK_WINDOW_STATE_FULLSCREEN) {
+    gtk_window_unfullscreen(window);
+  } else if (state & GDK_WINDOW_STATE_MAXIMIZED) {
+    gtk_window_unmaximize(window);
+  } else if (state & GDK_WINDOW_STATE_ICONIFIED) {
+    gtk_window_deiconify(window);
+  }
+}
+
+void yaru_window_show_menu(GtkWindow* window) {
+  GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
+  GdkDisplay* display = gdk_window_get_display(handle);
+  GdkSeat* seat = gdk_display_get_default_seat(display);
+  GdkDevice* pointer = gdk_seat_get_pointer(seat);
+
+  GdkPoint cursor = get_cursor_position(window);
+  GdkPoint origin = get_window_origin(window);
+
+  g_autoptr(GdkEvent) event = gdk_event_new(GDK_BUTTON_PRESS);
+  event->button.button = GDK_BUTTON_SECONDARY;
+  event->button.device = pointer;
+  event->button.window = handle;
+  event->button.x_root = cursor.x;
+  event->button.y_root = cursor.y;
+  event->button.x = cursor.x - origin.x;
+  event->button.y = cursor.y - origin.y;
+  gdk_window_show_window_menu(handle, event);
 }
 
 FlValue* yaru_window_get_geometry(GtkWindow* window) {

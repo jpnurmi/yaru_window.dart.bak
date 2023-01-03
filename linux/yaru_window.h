@@ -6,6 +6,12 @@
 
 G_BEGIN_DECLS
 
+void yaru_window_init(GtkWindow* window);
+
+void yaru_window_drag(GtkWindow* window);
+void yaru_window_restore(GtkWindow* window);
+void yaru_window_show_menu(GtkWindow* window);
+
 FlValue* yaru_window_get_geometry(GtkWindow* window);
 void yaru_window_set_geometry(GtkWindow* window, FlValue* geometry);
 
