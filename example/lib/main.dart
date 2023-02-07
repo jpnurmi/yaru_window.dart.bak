@@ -4,7 +4,10 @@ import 'package:yaru/yaru.dart';
 import 'package:yaru_widgets/yaru_widgets.dart' hide YaruWindow;
 import 'package:yaru_window/yaru_window.dart';
 
-void main() => runApp(const MyApp());
+Future<void> main() async {
+  await YaruWindowTitleBar.ensureInitialized();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -61,8 +64,7 @@ class _ColorSelectorState extends State<ColorSelector> {
           },
           onColorChanged: (color) {
             setState(() => _color = color.withOpacity(_color!.opacity));
-            YaruWindow.of(context)
-                .setStyle(YaruWindowStyle(background: _color));
+            YaruWindow.of(context).setBackground(_color!);
           },
         ),
         const Spacer(),
@@ -70,8 +72,7 @@ class _ColorSelectorState extends State<ColorSelector> {
           value: _color!.opacity,
           onChanged: (value) {
             setState(() => _color = _color!.withOpacity(value));
-            YaruWindow.of(context)
-                .setStyle(YaruWindowStyle(background: _color));
+            YaruWindow.of(context).setBackground(_color!);
           },
         ),
         const Spacer(),
