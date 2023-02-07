@@ -105,6 +105,16 @@ void yaru_window_drag(GtkWindow* window) {
                              GDK_CURRENT_TIME);
 }
 
+void yaru_window_hide_title(GtkWindow* window) {
+  GtkWidget* titlebar = gtk_window_get_titlebar(window);
+  if (!is_header_bar(titlebar)) {
+    titlebar = find_header_bar(GTK_WIDGET(window));
+  }
+  if (titlebar != nullptr) {
+    gtk_widget_hide(titlebar);
+  }
+}
+
 void yaru_window_restore(GtkWindow* window) {
   GdkWindow* handle = gtk_widget_get_window(GTK_WIDGET(window));
   GdkWindowState state = gdk_window_get_state(handle);

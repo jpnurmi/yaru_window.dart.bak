@@ -91,6 +91,8 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     }
   } else if (strcmp(method, "hide") == 0) {
     gtk_widget_hide(GTK_WIDGET(window));
+  } else if (strcmp(method, "hideTitle") == 0) {
+    yaru_window_hide_title(window);
   } else if (strcmp(method, "maximize") == 0) {
     gtk_window_maximize(window);
   } else if (strcmp(method, "minimize") == 0) {
