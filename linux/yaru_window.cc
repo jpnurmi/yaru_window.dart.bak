@@ -30,7 +30,7 @@ static int get_window_background(GtkWindow* window) {
 }
 #pragma GCC diagnostic pop
 
-static void set_window_background(GtkWindow* window, int color) {
+static void set_window_background(GtkWindow* window, guint color) {
   GdkRGBA rgba = {
       .red = ((color >> 16) & 0xFF) / 255.0,
       .green = ((color >> 8) & 0xFF) / 255.0,
@@ -50,8 +50,7 @@ static void set_window_background(GtkWindow* window, int color) {
   }
 
   g_autofree gchar* str = gdk_rgba_to_string(&rgba);
-  g_autofree gchar* css =
-      g_strdup_printf("window { background-color: %s; }", str);
+  g_autofree gchar* css = g_strdup_printf("window { background: %s; }", str);
 
   g_autoptr(GError) error = nullptr;
   gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider), css, -1,
