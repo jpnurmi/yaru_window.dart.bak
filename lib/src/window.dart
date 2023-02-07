@@ -6,16 +6,106 @@ import 'state.dart';
 import 'style.dart';
 
 class YaruWindow {
-  const YaruWindow._(this._id);
-  factory YaruWindow([int id = 0]) => _windows[id] ??= YaruWindow._(id);
+  static final Map<int, YaruWindowInstance> _windows = {};
+
+  static YaruWindowInstance of(BuildContext context) {
+    const id = 0; // View.of(context).windowId;
+    return _windows[id] ??= const YaruWindowInstance._(id);
+  }
+
+  Future<void> close(BuildContext context) {
+    return YaruWindow.of(context).close();
+  }
+
+  Future<void> destroy(BuildContext context) {
+    return YaruWindow.of(context).destroy();
+  }
+
+  Future<void> drag(BuildContext context) {
+    return YaruWindow.of(context).drag();
+  }
+
+  Future<void> fullscreen(BuildContext context) {
+    return YaruWindow.of(context).fullscreen();
+  }
+
+  Future<YaruWindowGeometry> geometry(BuildContext context) {
+    return YaruWindow.of(context).geometry();
+  }
+
+  Future<void> hide(BuildContext context) {
+    return YaruWindow.of(context).hide();
+  }
+
+  Future<void> hideTitle(BuildContext context) {
+    return YaruWindow.of(context).hideTitle();
+  }
+
+  Future<void> maximize(BuildContext context) {
+    return YaruWindow.of(context).maximize();
+  }
+
+  Future<void> minimize(BuildContext context) {
+    return YaruWindow.of(context).minimize();
+  }
+
+  Future<void> restore(BuildContext context) {
+    return YaruWindow.of(context).restore();
+  }
+
+  Future<void> show(BuildContext context) {
+    return YaruWindow.of(context).show();
+  }
+
+  Future<void> showMenu(BuildContext context) {
+    return YaruWindow.of(context).showMenu();
+  }
+
+  Future<YaruWindowState> state(BuildContext context) {
+    return YaruWindow.of(context).state();
+  }
+
+  Future<YaruWindowStyle> style(BuildContext context) {
+    return YaruWindow.of(context).style();
+  }
+
+  Stream<YaruWindowGeometry> geometries(BuildContext context) {
+    return YaruWindow.of(context).geometries();
+  }
+
+  Stream<YaruWindowState> states(BuildContext context) {
+    return YaruWindow.of(context).states();
+  }
+
+  Future<void> setGeometry(BuildContext context, YaruWindowGeometry geometry) {
+    return YaruWindow.of(context).setGeometry(geometry);
+  }
+
+  Future<void> setState(BuildContext context, YaruWindowState state) {
+    return YaruWindow.of(context).setState(state);
+  }
+
+  Future<void> setClosable(BuildContext context, bool closable) {
+    return YaruWindow.of(context).setClosable(closable);
+  }
+
+  Future<void> setTitle(BuildContext context, String title) {
+    return YaruWindow.of(context).setTitle(title);
+  }
+
+  Future<void> setStyle(BuildContext context, YaruWindowStyle style) {
+    return YaruWindow.of(context).setStyle(style);
+  }
+
+  Future<void> setBackground(BuildContext context, Color background) {
+    return YaruWindow.of(context).setBackground(background);
+  }
+}
+
+class YaruWindowInstance {
+  const YaruWindowInstance._(this._id);
 
   final int _id;
-  static final Map<int, YaruWindow> _windows = {};
-
-  static YaruWindow of(BuildContext context) {
-    const id = 0; // View.of(context).windowId;
-    return YaruWindow(id);
-  }
 
   YaruWindowPlatform get _platform => YaruWindowPlatform.instance;
 
