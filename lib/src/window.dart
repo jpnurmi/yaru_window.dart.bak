@@ -8,9 +8,13 @@ import 'style.dart';
 class YaruWindow {
   static final Map<int, YaruWindowInstance> _windows = {};
 
+  static YaruWindowInstance instance([int id = 0]) {
+    return _windows[id] ??= YaruWindowInstance._(id);
+  }
+
   static YaruWindowInstance of(BuildContext context) {
     const id = 0; // View.of(context).windowId;
-    return _windows[id] ??= const YaruWindowInstance._(id);
+    return instance(id);
   }
 
   static Future<void> close(BuildContext context) {
