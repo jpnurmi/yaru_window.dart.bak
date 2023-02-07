@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yaru/yaru.dart';
-import 'package:yaru_widgets/yaru_widgets.dart';
+import 'package:yaru_widgets/yaru_widgets.dart' hide YaruWindow;
 import 'package:yaru_window/yaru_window.dart';
 
 void main() => runApp(const MyApp());
