@@ -4,13 +4,6 @@
 
 YaruWindow::YaruWindow(HWND hwnd) : hwnd(hwnd) {}
 
-void YaruWindow::Init() {
-  MARGINS margins = {0, 0, 0, 0};
-  ::DwmExtendFrameIntoClientArea(hwnd, &margins);
-  ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
-                 SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
-}
-
 bool YaruWindow::IsActive() const { return ::GetForegroundWindow() == hwnd; }
 
 void YaruWindow::Activate(bool active) {
@@ -128,6 +121,13 @@ void YaruWindow::Restore() { ::ShowWindow(hwnd, SW_RESTORE); }
 void YaruWindow::Drag() {
   ::ReleaseCapture();
   ::SendMessage(hwnd, WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
+}
+
+void YaruWindow::HideTitle() {
+  MARGINS margins = {0, 0, 0, 0};
+  ::DwmExtendFrameIntoClientArea(hwnd, &margins);
+  ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                 SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void YaruWindow::ShowMenu() {

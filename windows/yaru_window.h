@@ -9,8 +9,6 @@ class YaruWindow {
  public:
   YaruWindow(HWND hwnd);
 
-  void Init();
-
   bool IsActive() const;
   void Activate(bool active = true);
 
@@ -41,6 +39,7 @@ class YaruWindow {
   void Restore();
 
   void Drag();
+  void HideTitle();
   void ShowMenu();
 
   void Close();

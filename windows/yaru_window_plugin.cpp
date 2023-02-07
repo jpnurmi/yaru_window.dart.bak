@@ -39,9 +39,6 @@ class YaruWindowEventHandler : public FlStreamHandler {
       const FlValue *arguments,
       std::unique_ptr<FlEventSink> &&events) override {
     _sink = std::move(events);
-    // TODO: find a better place for initialization
-    auto window = GetYaruWindow(_registrar->GetView());
-    window.Init();
     return nullptr;
   }
 
@@ -153,6 +150,8 @@ void YaruWindowPlugin::HandleMethodCall(
     return;
   } else if (method.compare("hide") == 0) {
     window.Hide();
+  } else if (method.compare("hideTitle") == 0) {
+    window.HideTitle();
   } else if (method.compare("maximize") == 0) {
     window.Maximize();
   } else if (method.compare("minimize") == 0) {
