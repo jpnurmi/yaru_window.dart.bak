@@ -53,12 +53,7 @@ class YaruWindowStyle {
   }
 
   @override
-  int get hashCode {
-    return Object.hash(
-      background,
-      opacity,
-    );
-  }
+  int get hashCode => Object.hash(background, opacity);
 
   @override
   String toString() {
