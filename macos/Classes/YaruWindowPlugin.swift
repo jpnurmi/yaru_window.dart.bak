@@ -173,6 +173,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     let isMaximized = window.isZoomed
     let isMinimizable = window.styleMask.contains(.miniaturizable)
     let isMinimized = window.isMiniaturized
+    let isMovable = window.isMovable;
     let isRestorable = isFullscreen || isMinimized || isMaximized
     let isVisible = window.isVisible
     return [
@@ -185,6 +186,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       "maximized": isMaximized,
       "minimizable": isMinimizable,
       "minimized": isMinimized,
+      "movable": isMovable,
       "restorable": isRestorable,
       "visible": isVisible,
     ]
