@@ -260,6 +260,7 @@ FlValue* yaru_window_get_state(GtkWindow* window) {
   fl_value_set_string_take(result, "minimizable",
                            fl_value_new_bool(normal && !minimized));
   fl_value_set_string_take(result, "minimized", fl_value_new_bool(minimized));
+  fl_value_set_string_take(result, "movable", fl_value_new_bool(true));
   fl_value_set_string_take(result, "restorable", fl_value_new_bool(restorable));
   fl_value_set_string_take(result, "title", fl_value_new_string(title));
   fl_value_set_string_take(result, "visible", fl_value_new_bool(visible));
