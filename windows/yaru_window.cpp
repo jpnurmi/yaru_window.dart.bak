@@ -199,6 +199,7 @@ std::map<FlValue, FlValue> YaruWindow::GetState() const {
       {"maximized", IsMaximized()},
       {"minimizable", IsMinimizable()},
       {"minimized", IsMinimized()},
+      {"movable", true},
       {"restorable", IsRestorable()},
       {"visible", IsVisible()},
   };
