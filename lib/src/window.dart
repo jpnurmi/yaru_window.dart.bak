@@ -26,6 +26,7 @@ class YaruWindow {
   Future<YaruWindowGeometry> geometry() =>
       _platform.geometry(_id).then(YaruWindowGeometry.fromJson);
   Future<void> hide() => _platform.hide(_id);
+  Future<void> hideTitle() => _platform.hideTitle(_id);
   Future<void> maximize() => _platform.maximize(_id);
   Future<void> minimize() => _platform.minimize(_id);
   Future<void> restore() => _platform.restore(_id);
