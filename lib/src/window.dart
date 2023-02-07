@@ -54,7 +54,19 @@ class YaruWindow {
     return _platform.setState(_id, state.toJson());
   }
 
+  Future<void> setClosable(bool closable) {
+    return setState(YaruWindowState(closable: closable));
+  }
+
+  Future<void> setTitle(String title) {
+    return setState(YaruWindowState(title: title));
+  }
+
   Future<void> setStyle(YaruWindowStyle style) {
     return _platform.setStyle(_id, style.toJson());
+  }
+
+  Future<void> setBackground(Color background) {
+    return setStyle(YaruWindowStyle(background: background));
   }
 }
