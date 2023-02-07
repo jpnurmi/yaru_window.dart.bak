@@ -67,7 +67,7 @@ class _ColorSelectorState extends State<ColorSelector> {
         ),
         const Spacer(),
         Slider(
-          value: 1.0,
+          value: _color!.opacity,
           onChanged: (value) {
             setState(() => _color = _color!.withOpacity(value));
             YaruWindow.of(context)
