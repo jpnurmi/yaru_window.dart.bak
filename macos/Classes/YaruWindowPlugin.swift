@@ -58,6 +58,11 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     case "hide":
       window.orderOut(nil)
       result(nil)
+    case "hideTitle":
+      window.titleVisibility = .hidden
+      window.titlebarAppearsTransparent = true
+      window.styleMask.insert(.fullSizeContentView)
+      result(nil)
     case "maximize":
       window.zoom(nil)
       result(nil)
