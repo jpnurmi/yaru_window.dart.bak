@@ -151,7 +151,7 @@ class YaruWindowInstance {
   }
 
   Future<void> setClosable(bool closable) {
-    return setState(YaruWindowState(closable: closable));
+    return setState(YaruWindowState(isClosable: closable));
   }
 
   Future<void> setTitle(String title) {

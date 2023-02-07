@@ -3,97 +3,97 @@ import 'package:meta/meta.dart';
 @immutable
 class YaruWindowState {
   const YaruWindowState({
-    this.active,
-    this.closable,
-    this.fullscreen,
-    this.maximizable,
-    this.maximized,
-    this.minimizable,
-    this.minimized,
-    this.restorable,
+    this.isActive,
+    this.isClosable,
+    this.isFullscreen,
+    this.isMaximizable,
+    this.isMaximized,
+    this.isMinimizable,
+    this.isMinimized,
+    this.isRestorable,
     this.title,
-    this.visible,
+    this.isVisible,
   });
 
   factory YaruWindowState.fromJson(Map<String, dynamic> json) {
     return YaruWindowState(
-      active: json['active'],
-      closable: json['closable'],
-      fullscreen: json['fullscreen'],
-      maximizable: json['maximizable'],
-      maximized: json['maximized'],
-      minimizable: json['minimizable'],
-      minimized: json['minimized'],
-      restorable: json['restorable'],
+      isActive: json['active'],
+      isClosable: json['closable'],
+      isFullscreen: json['fullscreen'],
+      isMaximizable: json['maximizable'],
+      isMaximized: json['maximized'],
+      isMinimizable: json['minimizable'],
+      isMinimized: json['minimized'],
+      isRestorable: json['restorable'],
       title: json['title'],
-      visible: json['visible'],
+      isVisible: json['visible'],
     );
   }
 
-  final bool? active;
-  final bool? closable;
-  final bool? fullscreen;
-  final bool? maximizable;
-  final bool? maximized;
-  final bool? minimizable;
-  final bool? minimized;
-  final bool? restorable;
+  final bool? isActive;
+  final bool? isClosable;
+  final bool? isFullscreen;
+  final bool? isMaximizable;
+  final bool? isMaximized;
+  final bool? isMinimizable;
+  final bool? isMinimized;
+  final bool? isRestorable;
   final String? title;
-  final bool? visible;
+  final bool? isVisible;
 
   Map<String, dynamic> toJson() {
     return {
-      'active': active,
-      'closable': closable,
-      'fullscreen': fullscreen,
-      'maximizable': maximizable,
-      'maximized': maximized,
-      'minimizable': minimizable,
-      'minimized': minimized,
-      'restorable': restorable,
+      'active': isActive,
+      'closable': isClosable,
+      'fullscreen': isFullscreen,
+      'maximizable': isMaximizable,
+      'maximized': isMaximized,
+      'minimizable': isMinimizable,
+      'minimized': isMinimized,
+      'restorable': isRestorable,
       'title': title,
-      'visible': visible,
+      'visible': isVisible,
     };
   }
 
   YaruWindowState copyWith({
-    bool? active,
-    bool? closable,
-    bool? fullscreen,
-    bool? maximizable,
-    bool? maximized,
-    bool? minimizable,
-    bool? minimized,
-    bool? restorable,
+    bool? isActive,
+    bool? isClosable,
+    bool? isFullscreen,
+    bool? isMaximizable,
+    bool? isMaximized,
+    bool? isMinimizable,
+    bool? isMinimized,
+    bool? isRestorable,
     String? title,
-    bool? visible,
+    bool? isVisible,
   }) {
     return YaruWindowState(
-      active: active ?? this.active,
-      closable: closable ?? this.closable,
-      fullscreen: fullscreen ?? this.fullscreen,
-      maximizable: maximizable ?? this.maximizable,
-      maximized: maximized ?? this.maximized,
-      minimizable: minimizable ?? this.minimizable,
-      minimized: minimized ?? this.minimized,
-      restorable: restorable ?? this.restorable,
+      isActive: isActive ?? this.isActive,
+      isClosable: isClosable ?? this.isClosable,
+      isFullscreen: isFullscreen ?? this.isFullscreen,
+      isMaximizable: isMaximizable ?? this.isMaximizable,
+      isMaximized: isMaximized ?? this.isMaximized,
+      isMinimizable: isMinimizable ?? this.isMinimizable,
+      isMinimized: isMinimized ?? this.isMinimized,
+      isRestorable: isRestorable ?? this.isRestorable,
       title: title ?? this.title,
-      visible: visible ?? this.visible,
+      isVisible: isVisible ?? this.isVisible,
     );
   }
 
   YaruWindowState merge(YaruWindowState? other) {
     return copyWith(
-      active: other?.active,
-      closable: other?.closable,
-      fullscreen: other?.fullscreen,
-      maximizable: other?.maximizable,
-      maximized: other?.maximized,
-      minimizable: other?.minimizable,
-      minimized: other?.minimized,
-      restorable: other?.restorable,
+      isActive: other?.isActive,
+      isClosable: other?.isClosable,
+      isFullscreen: other?.isFullscreen,
+      isMaximizable: other?.isMaximizable,
+      isMaximized: other?.isMaximized,
+      isMinimizable: other?.isMinimizable,
+      isMinimized: other?.isMinimized,
+      isRestorable: other?.isRestorable,
       title: other?.title,
-      visible: other?.visible,
+      isVisible: other?.isVisible,
     );
   }
 
@@ -101,36 +101,36 @@ class YaruWindowState {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is YaruWindowState &&
-        other.active == active &&
-        other.closable == closable &&
-        other.fullscreen == fullscreen &&
-        other.maximizable == maximizable &&
-        other.maximized == maximized &&
-        other.minimizable == minimizable &&
-        other.minimized == minimized &&
-        other.restorable == restorable &&
+        other.isActive == isActive &&
+        other.isClosable == isClosable &&
+        other.isFullscreen == isFullscreen &&
+        other.isMaximizable == isMaximizable &&
+        other.isMaximized == isMaximized &&
+        other.isMinimizable == isMinimizable &&
+        other.isMinimized == isMinimized &&
+        other.isRestorable == isRestorable &&
         other.title == title &&
-        other.visible == visible;
+        other.isVisible == isVisible;
   }
 
   @override
   int get hashCode {
     return Object.hash(
-      active,
-      closable,
-      fullscreen,
-      maximizable,
-      maximized,
-      minimizable,
-      minimized,
-      restorable,
+      isActive,
+      isClosable,
+      isFullscreen,
+      isMaximizable,
+      isMaximized,
+      isMinimizable,
+      isMinimized,
+      isRestorable,
       title,
-      visible,
+      isVisible,
     );
   }
 
   @override
   String toString() {
-    return 'YaruWindowState(active: $active, closable: $closable, fullscreen: $fullscreen, maximizable: $maximizable, maximized: $maximized, minimizable: $minimizable, minimized: $minimized, restorable: $restorable, title: $title, visible: $visible)';
+    return 'YaruWindowState(isActive: $isActive, isClosable: $isClosable, isFullscreen: $isFullscreen, isMaximizable: $isMaximizable, isMaximized: $isMaximized, isMinimizable: $isMinimizable, isMinimized: $isMinimized, isRestorable: $isRestorable, title: $title, isVisible: $isVisible)';
   }
 }
