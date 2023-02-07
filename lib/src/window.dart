@@ -13,91 +13,92 @@ class YaruWindow {
     return _windows[id] ??= const YaruWindowInstance._(id);
   }
 
-  Future<void> close(BuildContext context) {
+  static Future<void> close(BuildContext context) {
     return YaruWindow.of(context).close();
   }
 
-  Future<void> destroy(BuildContext context) {
+  static Future<void> destroy(BuildContext context) {
     return YaruWindow.of(context).destroy();
   }
 
-  Future<void> drag(BuildContext context) {
+  static Future<void> drag(BuildContext context) {
     return YaruWindow.of(context).drag();
   }
 
-  Future<void> fullscreen(BuildContext context) {
+  static Future<void> fullscreen(BuildContext context) {
     return YaruWindow.of(context).fullscreen();
   }
 
-  Future<YaruWindowGeometry> geometry(BuildContext context) {
+  static Future<YaruWindowGeometry> geometry(BuildContext context) {
     return YaruWindow.of(context).geometry();
   }
 
-  Future<void> hide(BuildContext context) {
+  static Future<void> hide(BuildContext context) {
     return YaruWindow.of(context).hide();
   }
 
-  Future<void> hideTitle(BuildContext context) {
+  static Future<void> hideTitle(BuildContext context) {
     return YaruWindow.of(context).hideTitle();
   }
 
-  Future<void> maximize(BuildContext context) {
+  static Future<void> maximize(BuildContext context) {
     return YaruWindow.of(context).maximize();
   }
 
-  Future<void> minimize(BuildContext context) {
+  static Future<void> minimize(BuildContext context) {
     return YaruWindow.of(context).minimize();
   }
 
-  Future<void> restore(BuildContext context) {
+  static Future<void> restore(BuildContext context) {
     return YaruWindow.of(context).restore();
   }
 
-  Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context) {
     return YaruWindow.of(context).show();
   }
 
-  Future<void> showMenu(BuildContext context) {
+  static Future<void> showMenu(BuildContext context) {
     return YaruWindow.of(context).showMenu();
   }
 
-  Future<YaruWindowState> state(BuildContext context) {
+  static Future<YaruWindowState> state(BuildContext context) {
     return YaruWindow.of(context).state();
   }
 
-  Future<YaruWindowStyle> style(BuildContext context) {
+  static Future<YaruWindowStyle> style(BuildContext context) {
     return YaruWindow.of(context).style();
   }
 
-  Stream<YaruWindowGeometry> geometries(BuildContext context) {
+  static Stream<YaruWindowGeometry> geometries(BuildContext context) {
     return YaruWindow.of(context).geometries();
   }
 
-  Stream<YaruWindowState> states(BuildContext context) {
+  static Stream<YaruWindowState> states(BuildContext context) {
     return YaruWindow.of(context).states();
   }
 
-  Future<void> setGeometry(BuildContext context, YaruWindowGeometry geometry) {
+  static Future<void> setGeometry(
+      BuildContext context, YaruWindowGeometry geometry) {
     return YaruWindow.of(context).setGeometry(geometry);
   }
 
-  Future<void> setState(BuildContext context, YaruWindowState state) {
+  static Future<void> setState(BuildContext context, YaruWindowState state) {
     return YaruWindow.of(context).setState(state);
   }
 
-  Future<void> setClosable(BuildContext context, bool closable) {
+  static Future<void> setClosable(BuildContext context, bool closable) {
     return YaruWindow.of(context).setClosable(closable);
   }
 
-  Future<void> setTitle(BuildContext context, String title) {
+  static Future<void> setTitle(BuildContext context, String title) {
     return YaruWindow.of(context).setTitle(title);
   }
 
-  Future<void> setStyle(BuildContext context, YaruWindowStyle style) {
+  static Future<void> setStyle(BuildContext context, YaruWindowStyle style) {
     return YaruWindow.of(context).setStyle(style);
   }
 
-  Future<void> setBackground(BuildContext context, Color background) {
+  static Future<void> setBackground(BuildContext context, Color background) {
     return YaruWindow.of(context).setBackground(background);
   }
 }
