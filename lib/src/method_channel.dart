@@ -38,6 +38,8 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @override
   Future<void> hide(int id) => _invokeMethod('hide', [id]);
   @override
+  Future<void> hideTitle(int id) => _invokeMethod('hideTitle', [id]);
+  @override
   Future<void> init(int id) => _invokeMethod('init', [id]);
   @override
   Future<void> maximize(int id) => _invokeMethod('maximize', [id]);
