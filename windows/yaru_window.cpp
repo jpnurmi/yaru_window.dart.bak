@@ -130,7 +130,7 @@ void YaruWindow::Drag() {
   ::SendMessage(hwnd, WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
 }
 
-void YaruWindow::Menu() {
+void YaruWindow::ShowMenu() {
   POINT cursor;
   ::GetCursorPos(&cursor);
   HMENU menu = ::GetSystemMenu(hwnd, false);

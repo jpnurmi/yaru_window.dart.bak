@@ -25,10 +25,10 @@ abstract class YaruWindowPlatform extends PlatformInterface {
   Future<void> hide(int id) => throw UnimplementedError('hide');
   Future<void> init(int id) => throw UnimplementedError('init');
   Future<void> maximize(int id) => throw UnimplementedError('maximize');
-  Future<void> menu(int id) => throw UnimplementedError('menu');
   Future<void> minimize(int id) => throw UnimplementedError('minimize');
   Future<void> restore(int id) => throw UnimplementedError('restore');
   Future<void> show(int id) => throw UnimplementedError('show');
+  Future<void> showMenu(int id) => throw UnimplementedError('showMenu');
   Future<JsonObject> state(int id) => throw UnimplementedError('state');
   Future<JsonObject> style(int id) => throw UnimplementedError('style');
 

@@ -93,14 +93,14 @@ static void yaru_window_plugin_handle_method_call(YaruWindowPlugin* self,
     gtk_widget_hide(GTK_WIDGET(window));
   } else if (strcmp(method, "maximize") == 0) {
     gtk_window_maximize(window);
-  } else if (strcmp(method, "menu") == 0) {
-    yaru_window_show_menu(window);
   } else if (strcmp(method, "minimize") == 0) {
     gtk_window_iconify(window);
   } else if (strcmp(method, "restore") == 0) {
     yaru_window_restore(window);
   } else if (strcmp(method, "show") == 0) {
     gtk_widget_show(GTK_WIDGET(window));
+  } else if (strcmp(method, "showMenu") == 0) {
+    yaru_window_show_menu(window);
   } else if (strcmp(method, "state") == 0) {
     if (fl_value_get_length(args) == 2) {
       FlValue* state = fl_value_get_list_value(args, 1);

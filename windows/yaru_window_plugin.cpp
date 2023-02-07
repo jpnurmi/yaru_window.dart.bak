@@ -155,14 +155,14 @@ void YaruWindowPlugin::HandleMethodCall(
     window.Hide();
   } else if (method.compare("maximize") == 0) {
     window.Maximize();
-  } else if (method.compare("menu") == 0) {
-    window.Menu();
   } else if (method.compare("minimize") == 0) {
     window.Minimize();
   } else if (method.compare("restore") == 0) {
     window.Restore();
   } else if (method.compare("show") == 0) {
     window.Show();
+  } else if (method.compare("showMenu") == 0) {
+    window.ShowMenu();
   } else if (method.compare("state") == 0) {
     result->Success(window.GetState());
     return;

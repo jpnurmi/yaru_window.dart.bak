@@ -42,13 +42,13 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @override
   Future<void> maximize(int id) => _invokeMethod('maximize', [id]);
   @override
-  Future<void> menu(int id) => _invokeMethod('menu', [id]);
-  @override
   Future<void> minimize(int id) => _invokeMethod('minimize', [id]);
   @override
   Future<void> restore(int id) => _invokeMethod('restore', [id]);
   @override
   Future<void> show(int id) => _invokeMethod('show', [id]);
+  @override
+  Future<void> showMenu(int id) => _invokeMethod('showMenu', [id]);
   @override
   Future<JsonObject> state(int id) => _invokeMapMethod('state', [id]);
   @override

@@ -61,8 +61,6 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     case "maximize":
       window.zoom(nil)
       result(nil)
-    case "menu":
-      result(false)
     case "minimize":
       window.miniaturize(nil)
       result(nil)
@@ -80,6 +78,8 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     case "show":
       window.makeKeyAndOrderFront(nil)
       result(nil)
+    case "showMenu":
+      result(false)
     case "state":
       if (args.count == 2) {
         self.setWindowState(window, state: args[1] as! NSDictionary)

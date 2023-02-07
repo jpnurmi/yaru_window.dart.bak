@@ -27,10 +27,10 @@ class YaruWindow {
       _platform.geometry(_id).then(YaruWindowGeometry.fromJson);
   Future<void> hide() => _platform.hide(_id);
   Future<void> maximize() => _platform.maximize(_id);
-  Future<void> menu() => _platform.menu(_id);
   Future<void> minimize() => _platform.minimize(_id);
   Future<void> restore() => _platform.restore(_id);
   Future<void> show() => _platform.show(_id);
+  Future<void> showMenu() => _platform.showMenu(_id);
   Future<YaruWindowState> state() =>
       _platform.state(_id).then(YaruWindowState.fromJson);
   Future<YaruWindowStyle> style() =>

@@ -41,7 +41,7 @@ class YaruWindow {
   void Restore();
 
   void Drag();
-  void Menu();
+  void ShowMenu();
 
   void Close();
   void Destroy();
