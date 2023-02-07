@@ -17,6 +17,8 @@ class YaruWindow {
     return instance(id);
   }
 
+  static void ensureInitialized() => WidgetsFlutterBinding.ensureInitialized();
+
   static Future<void> close(BuildContext context) {
     return YaruWindow.of(context).close();
   }
