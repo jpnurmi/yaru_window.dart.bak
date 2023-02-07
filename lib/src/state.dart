@@ -10,6 +10,7 @@ class YaruWindowState {
     this.isMaximized,
     this.isMinimizable,
     this.isMinimized,
+    this.isMovable,
     this.isRestorable,
     this.title,
     this.isVisible,
@@ -24,6 +25,7 @@ class YaruWindowState {
       isMaximized: json['maximized'],
       isMinimizable: json['minimizable'],
       isMinimized: json['minimized'],
+      isMovable: json['movable'],
       isRestorable: json['restorable'],
       title: json['title'],
       isVisible: json['visible'],
@@ -38,6 +40,7 @@ class YaruWindowState {
   final bool? isMinimizable;
   final bool? isMinimized;
   final bool? isRestorable;
+  final bool? isMovable;
   final String? title;
   final bool? isVisible;
 
@@ -50,6 +53,7 @@ class YaruWindowState {
       'maximized': isMaximized,
       'minimizable': isMinimizable,
       'minimized': isMinimized,
+      'movable': isMovable,
       'restorable': isRestorable,
       'title': title,
       'visible': isVisible,
@@ -64,6 +68,7 @@ class YaruWindowState {
     bool? isMaximized,
     bool? isMinimizable,
     bool? isMinimized,
+    bool? isMovable,
     bool? isRestorable,
     String? title,
     bool? isVisible,
@@ -76,6 +81,7 @@ class YaruWindowState {
       isMaximized: isMaximized ?? this.isMaximized,
       isMinimizable: isMinimizable ?? this.isMinimizable,
       isMinimized: isMinimized ?? this.isMinimized,
+      isMovable: isMovable ?? this.isMovable,
       isRestorable: isRestorable ?? this.isRestorable,
       title: title ?? this.title,
       isVisible: isVisible ?? this.isVisible,
@@ -91,6 +97,7 @@ class YaruWindowState {
       isMaximized: other?.isMaximized,
       isMinimizable: other?.isMinimizable,
       isMinimized: other?.isMinimized,
+      isMovable: other?.isMovable,
       isRestorable: other?.isRestorable,
       title: other?.title,
       isVisible: other?.isVisible,
@@ -108,6 +115,7 @@ class YaruWindowState {
         other.isMaximized == isMaximized &&
         other.isMinimizable == isMinimizable &&
         other.isMinimized == isMinimized &&
+        other.isMovable == isMovable &&
         other.isRestorable == isRestorable &&
         other.title == title &&
         other.isVisible == isVisible;
@@ -123,6 +131,7 @@ class YaruWindowState {
       isMaximized,
       isMinimizable,
       isMinimized,
+      isMovable,
       isRestorable,
       title,
       isVisible,
@@ -131,6 +140,6 @@ class YaruWindowState {
 
   @override
   String toString() {
-    return 'YaruWindowState(isActive: $isActive, isClosable: $isClosable, isFullscreen: $isFullscreen, isMaximizable: $isMaximizable, isMaximized: $isMaximized, isMinimizable: $isMinimizable, isMinimized: $isMinimized, isRestorable: $isRestorable, title: $title, isVisible: $isVisible)';
+    return 'YaruWindowState(isActive: $isActive, isClosable: $isClosable, isFullscreen: $isFullscreen, isMaximizable: $isMaximizable, isMaximized: $isMaximized, isMinimizable: $isMinimizable, isMinimized: $isMinimized, isMovable: $isMovable, isRestorable: $isRestorable, title: $title, isVisible: $isVisible)';
   }
 }
