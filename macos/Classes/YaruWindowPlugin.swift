@@ -12,9 +12,6 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
 
     let window = NSApp.windows.first
     window?.delegate = plugin
-    window?.titleVisibility = .hidden
-    window?.titlebarAppearsTransparent = true
-    window?.styleMask.insert(.fullSizeContentView)
   }
 
   let registrar: FlutterPluginRegistrar
@@ -180,6 +177,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     let isMinimized = window.isMiniaturized
     let isMovable = window.isMovable;
     let isRestorable = isFullscreen || isMinimized || isMaximized
+    let title = window.title
     let isVisible = window.isVisible
     return [
       "id": 0, // TODO
@@ -193,6 +191,7 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
       "minimized": isMinimized,
       "movable": isMovable,
       "restorable": isRestorable,
+      "title": title,
       "visible": isVisible,
     ]
   }
