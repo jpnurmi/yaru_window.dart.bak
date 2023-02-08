@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'method_channel.dart';
@@ -51,5 +53,9 @@ abstract class YaruWindowPlatform extends PlatformInterface {
 
   Future<void> setStyle(int id, JsonObject style) {
     throw UnimplementedError('setStyle');
+  }
+
+  void onClose(int id, FutureOr<bool> Function() handler) {
+    throw UnimplementedError('onClose');
   }
 }

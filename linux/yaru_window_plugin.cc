@@ -44,6 +44,41 @@ static void window_property_cb(GtkWindow* window, GParamSpec*,
   fl_event_channel_send(channel, state, nullptr, nullptr);
 }
 
+static gboolean window_delete_event_cb(GtkWidget* window, GdkEvent* /*event*/,
+                                       gpointer user_data);
+
+static void window_delete_response_cb(GObject* object, GAsyncResult* result,
+                                      gpointer user_data) {
+  FlMethodChannel* channel = FL_METHOD_CHANNEL(object);
+  g_autoptr(GError) error = nullptr;
+  g_autoptr(FlMethodResponse) response =
+      fl_method_channel_invoke_method_finish(channel, result, &error);
+  if (!response) {
+    g_warning("onClose response: %s", error->message);
+    return;
+  }
+
+  FlValue* value = fl_method_response_get_result(response, &error);
+  if (value && fl_value_get_type(value) == FL_VALUE_TYPE_BOOL &&
+      !fl_value_get_bool(value)) {
+    return;
+  }
+
+  GtkWindow* window = GTK_WINDOW(user_data);
+  g_signal_handlers_disconnect_by_func(window, gpointer(window_delete_event_cb),
+                                       channel);
+  gtk_window_close(GTK_WINDOW(window));
+}
+
+gboolean window_delete_event_cb(GtkWidget* window, GdkEvent* /*event*/,
+                                gpointer user_data) {
+  FlMethodChannel* channel = FL_METHOD_CHANNEL(user_data);
+  g_autoptr(FlValue) args = fl_value_new_int(0);  // TODO
+  fl_method_channel_invoke_method(channel, "onClose", args, nullptr,
+                                  window_delete_response_cb, window);
+  return TRUE;
+}
+
 static void yaru_window_plugin_listen_window(YaruWindowPlugin* self,
                                              gint window_id) {
   GtkWindow* window = yaru_window_plugin_get_window(self, window_id);
@@ -60,6 +95,9 @@ static void yaru_window_plugin_listen_window(YaruWindowPlugin* self,
     g_signal_connect_object(G_OBJECT(window), "notify::type-hint",
                             G_CALLBACK(window_property_cb), self->event_channel,
                             G_CONNECT_DEFAULT);
+    g_signal_connect_object(G_OBJECT(window), "delete-event",
+                            G_CALLBACK(window_delete_event_cb),
+                            self->method_channel, G_CONNECT_DEFAULT);
     g_hash_table_insert(self->signals, GINT_TO_POINTER(window_id), 0);
   }
 }
@@ -153,30 +191,6 @@ static void method_call_cb(FlMethodChannel* channel, FlMethodCall* method_call,
   yaru_window_plugin_handle_method_call(plugin, method_call);
 }
 
-static FlMethodErrorResponse* listen_state_cb(FlEventChannel* channel,
-                                              FlValue* args,
-                                              gpointer user_data) {
-  return nullptr;
-}
-
-static gboolean remove_signal(gpointer key, gpointer value,
-                              gpointer user_data) {
-  YaruWindowPlugin* plugin = YARU_WINDOW_PLUGIN(user_data);
-  gint window_id = GPOINTER_TO_INT(key);
-  gint handler = GPOINTER_TO_INT(value);
-  GtkWindow* window = yaru_window_plugin_get_window(plugin, window_id);
-  g_signal_handler_disconnect(window, handler);
-  return true;
-}
-
-static FlMethodErrorResponse* cancel_state_cb(FlEventChannel* channel,
-                                              FlValue* args,
-                                              gpointer user_data) {
-  YaruWindowPlugin* plugin = YARU_WINDOW_PLUGIN(user_data);
-  g_hash_table_foreach_remove(plugin->signals, remove_signal, plugin);
-  return nullptr;
-}
-
 void yaru_window_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
   g_autoptr(YaruWindowPlugin) plugin =
       YARU_WINDOW_PLUGIN(g_object_new(yaru_window_plugin_get_type(), nullptr));
@@ -193,9 +207,8 @@ void yaru_window_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
 
   plugin->event_channel = fl_event_channel_new(messenger, "yaru_window/events",
                                                FL_METHOD_CODEC(codec));
-  fl_event_channel_set_stream_handlers(plugin->event_channel, listen_state_cb,
-                                       cancel_state_cb, g_object_ref(plugin),
-                                       g_object_unref);
+  fl_event_channel_set_stream_handlers(plugin->event_channel, nullptr, nullptr,
+                                       g_object_ref(plugin), g_object_unref);
 
   yaru_window_plugin_listen_window(plugin, 0);
 }

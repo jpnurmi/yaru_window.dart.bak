@@ -3,30 +3,71 @@ import 'package:flutter/material.dart';
 import 'package:yaru/yaru.dart';
 import 'package:yaru_window/yaru_window.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(
+    YaruTheme(
+      builder: (context, yaru, child) {
+        return MaterialApp(
+          theme: yaru.theme,
+          darkTheme: yaru.darkTheme,
+          debugShowCheckedModeBanner: false,
+          home: const HomePage(),
+        );
+      },
+    ),
+  );
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    YaruWindow.of(context).onClose(() => showConfirmationDialog(context));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return YaruTheme(
-      builder: (context, yaru, child) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: yaru.theme,
-        darkTheme: yaru.darkTheme,
-        home: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Row(
-            children: const [
-              Expanded(flex: 3, child: ColorSelector()),
-              Expanded(flex: 2, child: StateView()),
-            ],
-          ),
-        ),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(title: const Text('YaruWindow example')),
+      body: Row(
+        children: const [
+          Expanded(flex: 3, child: ColorSelector()),
+          Expanded(flex: 2, child: StateView()),
+        ],
       ),
     );
   }
+}
+
+Future<bool> showConfirmationDialog(BuildContext context) async {
+  if (!context.mounted) return true;
+  if (ModalRoute.of(context)?.isCurrent == false) return false;
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Close window?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+        ],
+      );
+    },
+  ).then((value) => value == true);
 }
 
 class StateView extends StatelessWidget {

@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'platform_interface.dart';
 
 class YaruWindowMethodChannel extends YaruWindowPlatform {
+  YaruWindowMethodChannel() {
+    channel.setMethodCallHandler(_handleMethodCall);
+  }
+
   @visibleForTesting
   final channel = const MethodChannel('yaru_window');
   @visibleForTesting
@@ -74,5 +80,26 @@ class YaruWindowMethodChannel extends YaruWindowPlatform {
   @override
   Future<void> setStyle(int id, JsonObject style) {
     return _invokeMethod('style', [id, style]);
+  }
+
+  @override
+  void onClose(int id, FutureOr<bool> Function() handler) {
+    _onCloseHandlers.add(handler);
+  }
+
+  final _onCloseHandlers = <FutureOr<bool> Function()>[];
+
+  Future<dynamic> _handleMethodCall(MethodCall call) async {
+    switch (call.method) {
+      case 'onClose':
+        for (final handler in _onCloseHandlers) {
+          if (!await handler()) {
+            return false;
+          }
+        }
+        return true;
+      default:
+        throw UnimplementedError('Unimplemented method ${call.method}');
+    }
   }
 }

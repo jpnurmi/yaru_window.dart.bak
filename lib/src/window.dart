@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import 'geometry.dart';
@@ -107,6 +109,11 @@ class YaruWindow {
   static Future<void> setBackground(BuildContext context, Color background) {
     return YaruWindow.of(context).setBackground(background);
   }
+
+  static void onClose(
+      BuildContext context, FutureOr<bool> Function() callback) {
+    YaruWindow.of(context).onClose(callback);
+  }
 }
 
 class YaruWindowInstance {
@@ -166,5 +173,9 @@ class YaruWindowInstance {
 
   Future<void> setBackground(Color background) {
     return setStyle(YaruWindowStyle(background: background));
+  }
+
+  void onClose(FutureOr<bool> Function() callback) {
+    _platform.onClose(_id, callback);
   }
 }
