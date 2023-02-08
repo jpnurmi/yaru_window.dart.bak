@@ -87,18 +87,6 @@ static GtkWidget* find_header_bar(GtkWidget* widget) {
   return nullptr;
 }
 
-// Hides the window's header bar which is typically a GtkHeaderBar used as
-// GtkWindow::titlebar, or a HdyHeaderBar as HdyWindow granchild.
-void yaru_window_init(GtkWindow* window) {
-  GtkWidget* titlebar = gtk_window_get_titlebar(window);
-  if (!is_header_bar(titlebar)) {
-    titlebar = find_header_bar(GTK_WIDGET(window));
-  }
-  if (titlebar != nullptr) {
-    gtk_widget_hide(titlebar);
-  }
-}
-
 void yaru_window_drag(GtkWindow* window) {
   GdkPoint cursor = get_cursor_position(window);
   gtk_window_begin_move_drag(window, GDK_BUTTON_PRIMARY, cursor.x, cursor.y,

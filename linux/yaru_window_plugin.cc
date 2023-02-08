@@ -182,9 +182,6 @@ void yaru_window_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
       YARU_WINDOW_PLUGIN(g_object_new(yaru_window_plugin_get_type(), nullptr));
   plugin->registrar = FL_PLUGIN_REGISTRAR(g_object_ref(registrar));
 
-  GtkWindow* window = yaru_window_plugin_get_window(plugin, 0);
-  yaru_window_init(window);
-
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   FlBinaryMessenger* messenger = fl_plugin_registrar_get_messenger(registrar);
 
