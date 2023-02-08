@@ -270,6 +270,17 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
     sink?(self.getWindowState(window))
   }
 
+  private func sendWindowClose(_ window: NSWindow) {
+    DispatchQueue.main.async {
+      self.channel.invokeMethod("onClose", arguments: 0) { result in
+        print(String(describing: result))
+        if (result as? Bool == true) {
+          window.close()
+        }
+      }
+    }
+  }
+
   public func windowDidBecomeKey(_ notification: Notification) {
     self.sendWindowState(notification.object as! NSWindow)
   }
@@ -304,6 +315,11 @@ public class YaruWindowPlugin: NSObject, NSWindowDelegate, FlutterPlugin, Flutte
 
   public func windowDidExpose(_ notification: Notification) {
     self.sendWindowState(notification.object as! NSWindow)
+  }
+
+  public func windowShouldClose(_ sender: NSWindow) -> Bool {
+    self.sendWindowClose(sender)
+    return false
   }
 
   public func windowWillClose(_ notification: Notification) {
