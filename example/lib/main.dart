@@ -128,9 +128,12 @@ class StateView extends StatelessWidget {
             ListTile(
               title: const Text('Movable'),
               subtitle: Text('${state?.isMovable}'),
-              trailing: ElevatedButton(
-                onPressed: state?.isMovable == true ? window.drag : null,
-                child: const Text('Drag'),
+              trailing: GestureDetector(
+                onPanStart: (_) => window.drag(),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('Drag'),
+                ),
               ),
             ),
             ListTile(
@@ -139,6 +142,13 @@ class StateView extends StatelessWidget {
               trailing: ElevatedButton(
                 onPressed: state?.isRestorable == true ? window.restore : null,
                 child: const Text('Restore'),
+              ),
+            ),
+            ListTile(
+              title: const Text('Menu'),
+              trailing: ElevatedButton(
+                onPressed: window.showMenu,
+                child: const Text('Show'),
               ),
             ),
             ListTile(
@@ -170,7 +180,7 @@ class StateView extends StatelessWidget {
                     .hide()
                     .then((_) => Future.delayed(const Duration(seconds: 2)))
                     .then((_) => window.show()),
-                child: const Text('Hide & Show'),
+                child: const Text('Hide 2s'),
               ),
             ),
           ],
