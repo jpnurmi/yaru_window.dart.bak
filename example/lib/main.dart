@@ -1,13 +1,9 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:yaru/yaru.dart';
-import 'package:yaru_widgets/yaru_widgets.dart' hide YaruWindow;
 import 'package:yaru_window/yaru_window.dart';
 
-Future<void> main() async {
-  await YaruWindowTitleBar.ensureInitialized();
-  runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,10 +21,10 @@ class MyApp extends StatelessWidget {
           builder: (context, snapshot) {
             final state = snapshot.data;
             print(state);
-            return const Scaffold(
+            return Scaffold(
               backgroundColor: Colors.transparent,
-              appBar: YaruWindowTitleBar(),
-              body: ColorSelector(),
+              appBar: AppBar(title: const Text('YaruWindow example')),
+              body: const ColorSelector(),
             );
           },
         ),
