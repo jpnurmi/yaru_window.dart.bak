@@ -146,7 +146,11 @@ void YaruWindowPlugin::HandleMethodCall(
   } else if (method.compare("fullscreen") == 0) {
     window.SetFullscreen(true);
   } else if (method.compare("geometry") == 0) {
-    result->Success(window.GetGeometry());
+    if (args.size() == 2) {
+      window.SetGeometry(std::get<std::map<FlValue, FlValue>>(args[1]));
+    } else {
+      result->Success(window.GetGeometry());
+    }
     return;
   } else if (method.compare("hide") == 0) {
     window.Hide();
@@ -163,12 +167,12 @@ void YaruWindowPlugin::HandleMethodCall(
   } else if (method.compare("showMenu") == 0) {
     window.ShowMenu();
   } else if (method.compare("state") == 0) {
-    result->Success(window.GetState());
+    if (args.size() == 2) {
+      window.SetState(std::get<std::map<FlValue, FlValue>>(args[1]));
+    } else {
+      result->Success(window.GetState());
+    }
     return;
-  } else if (method.compare("setState") == 0) {
-    window.SetState(std::get<std::map<FlValue, FlValue>>(args[1]));
-  } else if (method.compare("setGeometry") == 0) {
-    window.SetGeometry(std::get<std::map<FlValue, FlValue>>(args[1]));
   } else {
     result->NotImplemented();
     return;

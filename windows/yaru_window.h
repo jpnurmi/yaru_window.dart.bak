@@ -38,6 +38,9 @@ class YaruWindow {
   bool IsRestorable() const;
   void Restore();
 
+  std::string GetTitle() const;
+  void SetTitle(const std::string& title);
+
   void Drag();
   void HideTitle();
   void ShowMenu();

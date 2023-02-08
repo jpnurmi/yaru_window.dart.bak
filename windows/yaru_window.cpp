@@ -2,6 +2,21 @@
 
 #include <dwmapi.h>
 
+#include <codecvt>
+#include <locale>
+
+namespace {
+static std::string from_wstr(const std::wstring& wstr) {
+  return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(
+      wstr.c_str());
+}
+
+static std::wstring to_wstr(const std::string& str) {
+  return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>{}
+      .from_bytes(str.c_str());
+}
+}  // namespace
+
 YaruWindow::YaruWindow(HWND hwnd) : hwnd(hwnd) {}
 
 bool YaruWindow::IsActive() const { return ::GetForegroundWindow() == hwnd; }
@@ -123,6 +138,20 @@ void YaruWindow::Drag() {
   ::SendMessage(hwnd, WM_SYSCOMMAND, SC_MOVE | HTCAPTION, 0);
 }
 
+std::string YaruWindow::GetTitle() const {
+  int length = ::GetWindowTextLength(hwnd) + 1;
+  std::wstring title;
+  title.resize(length);
+  ::GetWindowText(hwnd, &title[0], length);
+  title.resize(length - 1);
+  return from_wstr(title);
+}
+
+void YaruWindow::SetTitle(const std::string& title) {
+  std::cerr << "SetTitle: " << title << std::endl;
+  ::SetWindowText(hwnd, to_wstr(title).c_str());
+}
+
 void YaruWindow::HideTitle() {
   MARGINS margins = {0, 0, 0, 0};
   ::DwmExtendFrameIntoClientArea(hwnd, &margins);
@@ -201,11 +230,16 @@ std::map<FlValue, FlValue> YaruWindow::GetState() const {
       {"minimized", IsMinimized()},
       {"movable", true},
       {"restorable", IsRestorable()},
+      {"title", GetTitle()},
       {"visible", IsVisible()},
   };
 }
 
 void YaruWindow::SetState(const std::map<FlValue, FlValue>& state) {
+  fprintf(stderr, "SetState\n");
+  std::cout << "coutState" << std::endl;
+  std::cerr << "cerrState" << std::endl;
+
   FlValue active = state.at(FlValue("active"));
   if (std::get_if<bool>(&active)) {
     Activate(std::get<bool>(active));
@@ -239,6 +273,14 @@ void YaruWindow::SetState(const std::map<FlValue, FlValue>& state) {
   FlValue minimized = state.at(FlValue("minimized"));
   if (std::get_if<bool>(&minimized)) {
     Minimize(std::get<bool>(minimized));
+  }
+
+  FlValue title = state.at(FlValue("title"));
+  std::cerr << "title" << std::endl;
+  if (std::get_if<std::string>(&title)) {
+    SetTitle(std::get<std::string>(title));
+  } else {
+    std::cerr << "not a string" << std::endl;
   }
 
   FlValue visible = state.at(FlValue("visible"));
